@@ -1,0 +1,2 @@
+var domain = document.domain;
+
