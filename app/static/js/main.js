@@ -1,6 +1,6 @@
-// import { createPopper } from '@popperjs/core';
-// const popcorn = document.querySelector('#popcorn');
-// const tooltip = document.querySelector('#tooltip');
-// createPopper(popcorn, tooltip, {
-//   placement: 'top',
-// });
+// Establish Connection
+var socket = io.connect(base_url);
+socket.on('connect', function() {
+    console.log('Websocket connected!');
+});
+

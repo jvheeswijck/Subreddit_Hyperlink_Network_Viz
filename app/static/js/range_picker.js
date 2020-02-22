@@ -20,8 +20,8 @@ function getDate(num) {
     return new Date(Math.round(num));
 }
 
-const start_date = new Date("1 May 2014");
-const end_date = new Date("1 May 2017");
+// const start_date = new Date("1 May 2014");
+// const end_date = new Date("1 May 2017");
 const step_size = 24 * 60 * 60 * 1000;
 
 var range = {

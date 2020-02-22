@@ -4,10 +4,14 @@
     <div id='range-volume-scent'></div>
     <div id='range-slider'></div>
 </div>
-
+<script>
+    const start_date = new Date("{{ first_link }}");
+    const end_date = new Date("{{ last_link }}");
+</script>
 <link href="../static/dist/css/nouislider.css" rel="stylesheet">
 <script src="../static/dist/js/nouislider.js"></script>
 <link href="../static/css/rangepicker.css" rel="stylesheet">
 <script src="../static/js/range_picker.js"></script>
+<script src="../static/js/scented_range_picker.js.js"></script>
 <script src="../static/js/main.js"></script>
 {% endblock %}
