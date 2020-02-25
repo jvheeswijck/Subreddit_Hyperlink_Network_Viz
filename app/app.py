@@ -42,7 +42,7 @@ def home():
     last_link = df_all.TIMESTAMP.max().ctime()
     return render_template('index.html', first_link=first_link, last_link=last_link)
 
-@app.route('/data'):
+@app.route('/data')
 def serve_data():
     if request.args.get('g') == 'volume_hist':
         return prepare_csv(df_current)
