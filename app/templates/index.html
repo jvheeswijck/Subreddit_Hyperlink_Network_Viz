@@ -1,16 +1,28 @@
-{% extends "base.html" %}
-{% block date_bar %}
-<div class="date-slider-wrapper">
-    <div id='range-volume-scent'></div>
-    <div id='range-slider'></div>
+{% extends "base.html" %} {% block body %}
+<!-- Sidebar -->
+<div class="shadow" id="sidebar">
+  Test
+  <!-- <a href="#content-filters" data-toggle="collapse">Collapsible</a> -->
 </div>
+
+<div class="container-fluid" id="content">
+  <!-- Graphics -->
+  <div id='canvas'></div>
+  
+  <!-- Date Ranger Slider -->
+  <div class="date-slider-wrapper">
+    <div id="range-volume-scent"></div>
+    <div id="range-slider"></div>
+  </div>
+</div>
+
 <script>
-    const start_date = new Date("{{ first_link }}");
-    const end_date = new Date("{{ last_link }}");
+  const start_date = new Date("{{ first_link }}");
+  const end_date = new Date("{{ last_link }}");
 </script>
-<link href="../static/dist/css/nouislider.css" rel="stylesheet">
+<link href="../static/dist/css/nouislider.css" rel="stylesheet" />
 <script src="../static/dist/js/nouislider.js"></script>
-<link href="../static/css/rangepicker.css" rel="stylesheet">
+<link href="../static/css/rangepicker.css" rel="stylesheet" />
 <script src="../static/js/range_picker.js"></script>
 <script src="../static/js/scented_range_picker.js.js"></script>
 <script src="../static/js/main.js"></script>

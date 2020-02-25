@@ -2,19 +2,21 @@
 
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>{% block title %}{% endblock %}</title>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-	<title>{% block title %}{% endblock %}</title>
-	
-	<!-- jQuery -->
-	<script src="../static/dist/js/jquery-3.4.1.min.js"></script>
+    <!-- jQuery -->
+    <script src="../static/dist/js/jquery-3.4.1.min.js"></script>
 
     <!-- Bootstrap core CSS -->
-    <link href="../static/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="../static/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- D3 package -->
@@ -30,20 +32,21 @@
 	<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-1.4.0.min.js"></script>
 	<script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-1.4.0.min.js"></script>
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-api-1.4.0.min.js"></script> -->
-    <link href="../static/css/style.css" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet" />
 
     <style>
-        p,
-        .txt {
-            text-align: justify;
-            text-justify: inter-word;
-        }
+      p,
+      .txt {
+        text-align: justify;
+        text-justify: inter-word;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    {% block canvas %}{% endblock %}
-    {% block filter_bar %}{% endblock %}
-    {% block info_bar %}{% endblock %}
-    {% block date_bar %}{% endblock %}
-</body>
+  <body>
+    <div class="wrapper">
+    {% block body %}
+    {% endblock %}
+    </div>
+  </body>
+</html>
