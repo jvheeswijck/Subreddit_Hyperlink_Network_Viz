@@ -15,7 +15,8 @@ body {
     min-width: 15vw;
     max-width: 15vw;
     min-height: 100vh;
-    background-color: peru;
+    background-color: #555;
+    /* background-color: peru; */
     transition: all 0.25s ease-in-out;
 }
 
@@ -23,7 +24,8 @@ body {
     min-width: 15vw;
     max-width: 15vw;
     min-height: 100vh;
-    background-color: peru;
+    background-color: #555;
+    /* background-color: peru; */
     transition: all 0.25s ease-in-out;
 }
 

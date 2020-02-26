@@ -75,6 +75,7 @@ function nodeOverFunction(d){
             return content;
         })
     d3.select(this)
+    .style('opacity', 1)
     .transition()
     .duration(100)
     .attr('r', '12px')
@@ -85,6 +86,7 @@ function nodedOutFunction(){
     d3.select(this)
     .transition()
     .duration(100)
+    .style('opacity', 0.8)
     .attr('r', '8px')
     tooltip.style("visibility", "hidden")
 }
@@ -93,4 +95,4 @@ tooltip = d3.select("body").append("div")
   .attr("class", "svg-tooltip")
     .style("position", "absolute")
     .style("visibility", "hidden")
-    .text("I'm a circle!");
+    .text("");
