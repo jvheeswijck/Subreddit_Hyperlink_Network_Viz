@@ -28,6 +28,8 @@ df_all = pd.concat([df_title, df_body])
 df_embeddings.rename({0:'sub'}, axis=1, inplace=True)
 df_current = df_all
 
+df_points = pd.read_csv('../data/projections/perp_10_2500subs.csv')
+
 def prepare_csv(df):
     csv_obj = StringIO()
     df.to_csv(csv_obj, index=False)
@@ -46,6 +48,9 @@ def home():
 def serve_data():
     if request.args.get('g') == 'volume_hist':
         return prepare_csv(df_current)
+
+    if request.args.get('g') == 'sub_points':
+        return prepare_csv(df_points)
 
 
 @socketio.on('date_change')

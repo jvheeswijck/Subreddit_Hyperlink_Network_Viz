@@ -16,9 +16,10 @@ body {
 }
 
 .noUi-connect {
-background-color: skyblue;
-border: 2px solid darken(skyblue, 10);
-box-shadow: none;
+  background-color: skyblue;
+  border: 2px solid darken(skyblue, 10);
+  opacity: 0.3;
+  box-shadow: none;
 }
 
 .noUi-tooltip {

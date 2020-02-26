@@ -5,12 +5,17 @@
 </div>
 
 <div class="container" id="content">
-  <button type="button" id="sidebarCollapse" class="btn btn-info">
-    <i class="fas fa-align-left"></i>
-    <span><</span>
-</button>
+  <div class="collapse-spot-left">
+    <button type="button" id="sidebarCollapse" class="btn btn-info">
+      <i class="fas fa-align-left"></i>
+      <span><</span>
+    </button>
+
+
+  </div>
+
   <!-- Graphics -->
-  <div id='canvasdiv'></div>
+  <div id='svg-div'></div>
 
   <!-- Date Ranger Slider -->
   <div class="date-slider-wrapper">
@@ -18,6 +23,17 @@
     <div id="range-slider"></div>
   </div>
 </div>
+
+<div class="shadow" id="rightbar">
+  <div class="collapse-spot-right">
+    <button type="button" id="rightbarCollapse" class="btn btn-info">
+      <i class="fas fa-align-right"></i>
+      <span>></span>
+    </button>
+  </div>
+</div>
+
+
 
 <script>
   const start_date = new Date("{{ first_link }}");
@@ -27,6 +43,7 @@
 <script src="../static/dist/js/nouislider.js"></script>
 <link href="../static/css/rangepicker.css" rel="stylesheet" />
 <script src="../static/js/range_picker.js"></script>
-<script src="../static/js/scented_range_picker.js.js"></script>
+<!-- <script src="../static/js/scented_range_picker.js"></script> -->
 <script src="../static/js/main.js"></script>
+<script src="../static/js/graph.js"></script>
 {% endblock %}
