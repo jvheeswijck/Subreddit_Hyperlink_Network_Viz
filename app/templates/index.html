@@ -1,14 +1,17 @@
 {% extends "base.html" %} {% block body %}
 <!-- Sidebar -->
 <div class="shadow" id="sidebar">
-  Test
   <!-- <a href="#content-filters" data-toggle="collapse">Collapsible</a> -->
 </div>
 
-<div class="container-fluid" id="content">
+<div class="container" id="content">
+  <button type="button" id="sidebarCollapse" class="btn btn-info">
+    <i class="fas fa-align-left"></i>
+    <span><</span>
+</button>
   <!-- Graphics -->
-  <div id='canvas'></div>
-  
+  <div id='canvasdiv'></div>
+
   <!-- Date Ranger Slider -->
   <div class="date-slider-wrapper">
     <div id="range-volume-scent"></div>
