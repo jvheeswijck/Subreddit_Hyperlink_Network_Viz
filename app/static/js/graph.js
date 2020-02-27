@@ -4,12 +4,8 @@ var margin = { top: 0, right: 0, bottom: 0, left: 0 },
     width = $("#svg-div").parent().width() - margin.left - margin.right,
     height = $("#svg-div").parent().height() - margin.top - margin.bottom;
 
-// var min_zoom = 0.1;
-// var max_zoom = 7;
-// var zoom = d3.zoom().scaleExtent([min_zoom,max_zoom])
 
 var nodeScale = d3.scaleSqrt();
-
 
 var svg = d3.select('#svg-div')
     .append('svg')
@@ -19,15 +15,16 @@ var svg = d3.select('#svg-div')
 
 //  FIGURE OUT THIS VIEWBOX STUFF
 
-
 var zoom = d3.zoom()
     .scaleExtent([0.2, 10])
+    .duration(500)
     .on("zoom", function () {
         svg.selectAll('circle')
             .attr('transform', d3.event.transform);
         tooltip.attr('transform', d3.event.transform);
         // style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
     });
+
 
 
 svg.call(zoom);
@@ -64,6 +61,9 @@ loaded_data.then(function (data) {
         .on('mouseover', nodeOverFunction)
         .on('mousemove', () => tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px"))
         .on('mouseout', nodedOutFunction)
+
+    // svg.selectAll('circle')
+    //     .attr('transform', d3.event.transform);
 
 })
 

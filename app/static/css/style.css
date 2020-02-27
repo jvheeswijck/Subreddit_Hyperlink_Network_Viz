@@ -133,3 +133,11 @@ body {
     left: -11px;
     /* margin-left: 20px; */
 }
+
+.noUi-target {
+    height: 50px;
+}
+.noUi-handle {
+    width: 30px;
+    height: 100px;
+}

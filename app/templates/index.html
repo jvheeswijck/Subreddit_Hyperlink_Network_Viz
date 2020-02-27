@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block body %}
 <!-- Sidebar -->
-<div class="shadow" id="sidebar">
+<div class="shadow active" id="sidebar">
   <!-- <a href="#content-filters" data-toggle="collapse">Collapsible</a> -->
 </div>
 
@@ -8,7 +8,7 @@
   <div class="collapse-spot-left">
     <button type="button" id="sidebarCollapse" class="btn btn-info">
       <i class="fas fa-align-left"></i>
-      <span><</span>
+      <span>></span>
     </button>
 
 
@@ -22,13 +22,14 @@
     <div id="range-volume-scent"></div>
     <div id="range-slider"></div>
   </div>
+  <!-- For the scent, seperate positive and negative volumes -->
 </div>
 
-<div class="shadow" id="rightbar">
+<div class="shadow active" id="rightbar">
   <div class="collapse-spot-right">
     <button type="button" id="rightbarCollapse" class="btn btn-info">
       <i class="fas fa-align-right"></i>
-      <span>></span>
+      <span><</span>
     </button>
   </div>
 </div>
@@ -46,4 +47,5 @@
 <!-- <script src="../static/js/scented_range_picker.js"></script> -->
 <script src="../static/js/main.js"></script>
 <script src="../static/js/graph.js"></script>
+<script src="../static/js/scent_two.js"></script>
 {% endblock %}
