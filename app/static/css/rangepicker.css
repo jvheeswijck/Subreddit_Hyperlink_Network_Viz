@@ -2,19 +2,6 @@ body {
   font-family: Arial, sans;
 }
 
-/* .content {
-  width: 600px;
-  margin: 100px auto;
-} */
-
-/* .month-slider-wrapper.shortcuts {
-    font-size: 0.8em;
-    float: right;
-    list-style: none;
-    margin: -12px -25px 0 0;
-    padding: 0;
-} */
-
 .noUi-connect {
   background-color: skyblue;
   border: 2px solid darken(skyblue, 10);
@@ -50,12 +37,7 @@ background-color: skyblue;
 box-shadow: none;
 opacity: 0.7;
 top: -1px !important;
-/* width: 20px !important; */
 height: 40px !important;
-/* border: 2px solid darken(skyblue, 10); */
-/* width: 5px !important; */
-/* height: 25px !important; */
-/* margin-top: 4px !important; */
 }
 
 .noUi-handle::before{
@@ -74,9 +56,9 @@ height: 40px !important;
   margin: 70px 20px;
 }
 
-.sample-submit-data {
+/* .sample-submit-data {
   display: none;
-}
+} */
 
 #range-slider {
     height:40px;

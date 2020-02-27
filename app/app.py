@@ -30,6 +30,16 @@ df_current = df_all
 
 df_points = pd.read_csv('../data/projections/perp_10_2500subs.csv')
 
+# Shift to 0 origin
+x_shift = df_points.x.min()
+y_shift = df_points.y.min()
+
+df_points.x = df_points.x + (-x_shift)
+df_points.y = df_points.y +(-y_shift)
+
+# print(df_points.x.max())
+# print(df_points.y.max())
+
 def prepare_csv(df):
     csv_obj = StringIO()
     df.to_csv(csv_obj, index=False)

@@ -31,16 +31,20 @@ svg.call(zoom);
 
 var xScale = null;
 var yScale = null;
+var default_circle_radius = "4px";
 
+
+var the_data = null;
 //Read the data
 loaded_data = d3.csv(`${base_url}/data?g=sub_points`)
 loaded_data.then(function (data) {
+    the_data = data;
     xScale = d3.scaleLinear()
-        .domain(d3.extent(data, (d) => d.x))
+        .domain(d3.extent(data, (d) => Number(d.x)))
         .range([0, width])
 
     yScale = d3.scaleLinear()
-        .domain(d3.extent(data, (d) => d.y))
+        .domain(d3.extent(data, (d) => Number(d.y)))
         .range([0, height])
 
     // Initial Spots
@@ -54,7 +58,7 @@ loaded_data.then(function (data) {
         .append("circle")
         .attr("cx", function (d) { return xScale(d.x); })
         .attr("cy", function (d) { return yScale(d.y); })
-        .attr("r", "8px")
+        .attr("r", "4px")
         // .style("fill", "#69b3a2")
         .style("fill", "rgb(172, 220, 114)")
         .style("opacity", 0.8)
@@ -78,7 +82,7 @@ function nodeOverFunction(d){
     .style('opacity', 1)
     .transition()
     .duration(100)
-    .attr('r', '12px')
+    .attr('r', '6px')
     
 };
 
@@ -87,7 +91,7 @@ function nodedOutFunction(){
     .transition()
     .duration(100)
     .style('opacity', 0.8)
-    .attr('r', '8px')
+    .attr('r', default_circle_radius)
     tooltip.style("visibility", "hidden")
 }
 
