@@ -5,13 +5,16 @@ class LineScent {
     this.width = $(element_selector).parent().width() - margin.left - margin.right;
     // this.height = $(element_selector).parent().height() - margin.top - margin.bottom;
     this.height = 40 - margin.top - margin.bottom;
+  
+    let full_width = this.width + this.margin.left + this.margin.right;
+    let full_height = this.height + this.margin.top + this.margin.bottom;
 
+    this.svg = d3.select(element_selector).insert("svg",":first-child")
 
-    this.svg = d3.select(element_selector).append("svg")
-      .attr("width", this.width + this.margin.left + this.margin.right)
-      .attr("height", this.height + this.margin.top + this.margin.bottom)
+      .attr('viewbox', `0 0 ${full_width} ${full_height}`)
+      .style('width', '100%')
       .style('position', 'absolute')
-      .style('z-index', 5)
+      .style('z-index', 1)
       .style('top', -1)
       .style('left', 0)
       .append("g")
@@ -52,8 +55,9 @@ class LineScent {
     .datum(that.data) // 10. Binds data to the line 
     .attr("class", "line") // Assign a class for styling 
     .attr("d", that.line) // 11. Calls the line generator 
+    .style('fill', 'darkblue')
     .style('stroke', 'red')
-    .style('stroke-width', 2);
+    .style('stroke-width', 0);
   }
   resize(){
     // Place resize code here

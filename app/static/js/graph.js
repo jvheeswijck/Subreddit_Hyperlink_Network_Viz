@@ -25,8 +25,6 @@ var zoom = d3.zoom()
         // style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
     });
 
-
-
 svg.call(zoom);
 
 var xScale = null;
@@ -62,17 +60,22 @@ loaded_data.then(function (data) {
         // .style("fill", "#69b3a2")
         .style("fill", "rgb(172, 220, 114)")
         .style("opacity", 0.8)
-        .on('mouseover', nodeOverFunction)
-        .on('mousemove', () => tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px"))
-        .on('mouseout', nodedOutFunction)
+        .on('mouseover', nodeMouseOver)
+        .on('mousemove', nodeMouseMove)
+        .on('mouseout', nodeMouseOut)
 
     // svg.selectAll('circle')
     //     .attr('transform', d3.event.transform);
 
 })
 
+function nodeMouseMove(){
+    // Implement positioning code
+    tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px")
+}
 
-function nodeOverFunction(d){
+
+function nodeMouseOver(d){
     tooltip.style("visibility", "visible")
         .html(() => {
             const content = `<strong>Subreddit:</strong> <span>${d.sub}</span>`
@@ -86,7 +89,7 @@ function nodeOverFunction(d){
     
 };
 
-function nodedOutFunction(){
+function nodeMouseOut(){
     d3.select(this)
     .transition()
     .duration(100)
@@ -98,5 +101,7 @@ function nodedOutFunction(){
 tooltip = d3.select("body").append("div")
   .attr("class", "svg-tooltip")
     .style("position", "absolute")
+    .style('top', '50%')
+    .style('left', '50%')
     .style("visibility", "hidden")
     .text("");

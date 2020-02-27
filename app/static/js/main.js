@@ -27,7 +27,10 @@ $(document).ready(function () {
         }
     });
 
-
+    // Draw Scent
+    date_scent = new LineScent('.noUi-target');
+    date_scent.load_data();
+    date_scent.draw();
 
 
 

@@ -1,22 +1,21 @@
 {% extends "base.html" %} {% block body %}
+
+<!-- Background Graph -->
+<div id='svg-div'></div>
+
 <!-- Sidebar -->
 <div class="shadow active" id="sidebar">
-  <!-- <a href="#content-filters" data-toggle="collapse">Collapsible</a> -->
-</div>
-
-<div class="container" id="content">
   <div class="collapse-spot-left">
     <button type="button" id="sidebarCollapse" class="btn btn-info">
       <i class="fas fa-align-left"></i>
       <span>></span>
     </button>
-
-
   </div>
+</div>
 
-  <!-- Graphics -->
-  <div id='svg-div'></div>
-
+<!-- Middle Content -->
+<div class="container" id="content">
+  
   <!-- Date Ranger Slider -->
   <div class="date-slider-wrapper">
     <div id="range-volume-scent"></div>
@@ -25,6 +24,8 @@
   <!-- For the scent, seperate positive and negative volumes -->
 </div>
 
+
+<!-- Rightbar -->
 <div class="shadow active" id="rightbar">
   <div class="collapse-spot-right">
     <button type="button" id="rightbarCollapse" class="btn btn-info">
@@ -42,9 +43,8 @@
 </script>
 <link href="../static/dist/css/nouislider.css" rel="stylesheet" />
 <script src="../static/dist/js/nouislider.js"></script>
-<link href="../static/css/rangepicker.css" rel="stylesheet" />
 <script src="../static/js/range_picker.js"></script>
-<!-- <script src="../static/js/scented_range_picker.js"></script> -->
+<link href="../static/css/rangepicker.css" rel="stylesheet" />
 <script src="../static/js/line_scent.js"></script>
 <script src="../static/js/graph.js"></script>
 <script src="../static/js/main.js"></script>
