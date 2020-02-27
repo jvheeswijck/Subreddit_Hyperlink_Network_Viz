@@ -13,7 +13,8 @@ var svg = d3.select('#svg-div')
     .attr('preserveAspectRatio', 'xMinYMin meet')
     .classed('svg-content', true);
 
-//  FIGURE OUT THIS VIEWBOX STUFF
+var transform = d3.zoomIdentity.translate(100, 50).scale(0.8)
+// var zoom = d3.zoom().on("zoom", handleZoom);
 
 var zoom = d3.zoom()
     .scaleExtent([0.2, 10])
@@ -21,11 +22,11 @@ var zoom = d3.zoom()
     .on("zoom", function () {
         svg.selectAll('circle')
             .attr('transform', d3.event.transform);
-        tooltip.attr('transform', d3.event.transform);
+        // tooltip.attr('transform', d3.event.transform);
         // style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
     });
 
-svg.call(zoom);
+svg.call(zoom)
 
 var xScale = null;
 var yScale = null;
@@ -56,13 +57,22 @@ loaded_data.then(function (data) {
         .append("circle")
         .attr("cx", function (d) { return xScale(d.x); })
         .attr("cy", function (d) { return yScale(d.y); })
-        .attr("r", "4px")
-        // .style("fill", "#69b3a2")
         .style("fill", "rgb(172, 220, 114)")
-        .style("opacity", 0.8)
+        .attr("r", "4px")
+        .attr("opacity", 0)
         .on('mouseover', nodeMouseOver)
         .on('mousemove', nodeMouseMove)
         .on('mouseout', nodeMouseOut)
+        .transition()
+        .duration(200)
+        .delay((d, i) => (i%10)*100)
+        .attr("opacity", 0.8)
+        .attr("r", "4px");
+
+    svg.call(zoom.transform, transform);
+        
+        // .style("fill", "#69b3a2")
+
 
     // svg.selectAll('circle')
     //     .attr('transform', d3.event.transform);
