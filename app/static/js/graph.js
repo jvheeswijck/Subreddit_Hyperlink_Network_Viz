@@ -58,24 +58,20 @@ loaded_data.then(function (data) {
         .attr("cx", function (d) { return xScale(d.x); })
         .attr("cy", function (d) { return yScale(d.y); })
         .style("fill", "rgb(172, 220, 114)")
-        .attr("r", "4px")
+        .attr("r", "0px")
         .attr("opacity", 0)
+        .style('cursor', 'pointer')
         .on('mouseover', nodeMouseOver)
         .on('mousemove', nodeMouseMove)
         .on('mouseout', nodeMouseOut)
         .transition()
-        .duration(200)
+        .duration(300)
         .delay((d, i) => (i%10)*100)
         .attr("opacity", 0.8)
         .attr("r", "4px");
 
     svg.call(zoom.transform, transform);
         
-        // .style("fill", "#69b3a2")
-
-
-    // svg.selectAll('circle')
-    //     .attr('transform', d3.event.transform);
 
 })
 
