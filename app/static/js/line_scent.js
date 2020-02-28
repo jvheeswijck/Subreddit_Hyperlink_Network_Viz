@@ -23,21 +23,25 @@ class LineScent {
     this.xScale = d3.scaleLinear()
       .range([0, this.width]);
     this.yScale = d3.scaleLinear()
-      .range([0, (this.height / 2 - 1)]); // output
+      .range([0, ((this.height / 2) - 1)]); // output
     this.neg_line = d3.line();
     this.pos_line = d3.line();
 
     new ResizeObserver(this.resize.bind(this)).observe($(element_selector)[0]);
   }
   load_data(data) {
-    // this.data = data;
+    this.data = data;
 
     // temp
-    var n = 21;
-    this.data1 = d3.range(n).map(function (d) { return { "y": d3.randomUniform(1)() } });
-    this.data2 = d3.range(n).map(function (d) { return { "y": d3.randomUniform(1)() } })
-    this.xScale.domain([0, n - 1])
-    this.yScale.domain([0, 1]) // input 
+    // var n = 21;
+    // this.data1 = d3.range(n).map(function (d) { return { "y": d3.randomUniform(1)() } });
+    // this.data2 = d3.range(n).map(function (d) { return { "y": d3.randomUniform(1)() } })
+
+
+    this.xScale.domain([0, 49]);
+    this.yScale.domain([0, d3.max(data, (d)=>d.positive)*2]);
+
+
     // this.pos_line
     //   .x((d, i) => this.xScale(i)) // set the x values for the line generator
     //   .y((d) => 0.5*this.height - this.yScale(d.y)) // set the y values for the line generator 
@@ -47,12 +51,12 @@ class LineScent {
       .curve(d3.curveMonotoneX)
       .x((d, i) => this.xScale(i))
       .y0(this.height * 0.5)
-      .y1((d) => 0.5*this.height - this.yScale(d.y));
+      .y1((d) => 0.5*this.height - this.yScale(d.positive));
     this.neg_area = d3.area()
       .curve(d3.curveMonotoneX)
       .x((d, i) => this.xScale(i))
       .y0(0.5*this.height)
-      .y1((d) => this.yScale(d.y) + 0.5*this.height);
+      .y1((d) => this.yScale(d.negative) + 0.5*this.height);
 
     // this.neg_line
     //   .x((d, i) => this.xScale(i)) // set the x values for the line generator
@@ -74,14 +78,14 @@ class LineScent {
 
     this.svg
       .append("path")
-      .datum(this.data1)
+      .datum(this.data)
       .attr('id', 'pos-fill')
       .attr('d', this.pos_area)
       .style('fill', '#7a99c5')
 
     this.svg
       .append("path")
-      .datum(this.data2)
+      .datum(this.data)
       .attr('id', 'neg-fill')
       .attr('d', this.neg_area)
       .style('fill', '#f03333')
@@ -111,11 +115,11 @@ class LineScent {
     this.yScale.range([0, this.height / 2 - 1]) // input
     this.pos_line
       .x((d, i) => this.xScale(i)) // set the x values for the line generator
-      .y((d) => 0.5 * this.height - this.yScale(d.y)) // set the y values for the line generator 
+      .y((d) => 0.5 * this.height - this.yScale(d.positive)) // set the y values for the line generator 
       .curve(d3.curveMonotoneX) //
     this.neg_line
       .x((d, i) => this.xScale(i)) // set the x values for the line generator
-      .y((d) => 0.5 * this.height + this.yScale(d.y)) // set the y values for the line generator 
+      .y((d) => 0.5 * this.height + this.yScale(d.negative)) // set the y values for the line generator 
       .curve(d3.curveMonotoneX) //
   }
 }

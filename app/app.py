@@ -1,9 +1,10 @@
+import json
+import pandas as pd
+import numpy as np
+import datetime as dt
 from io import StringIO
 from flask import Flask, render_template, request, send_from_directory, jsonify
 from flask_socketio import SocketIO, emit, send
-
-
-# from . import data
 
 # Temp
 DEBUG = True
@@ -14,21 +15,21 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1
 socketio = SocketIO(app)
 
-# Move this to data module -> Figure out packages and imports
-import pandas as pd
-import numpy as np
-import datetime as dt
-
+df_points = pd.read_csv('../data/projections/perp_10_2500subs.csv')
 df_title = pd.read_csv('../data/soc-redditHyperlinks-title.tsv', sep='\t')
 df_body = pd.read_csv('../data/soc-redditHyperlinks-body.tsv', sep='\t')
-df_embeddings = pd.read_csv('../data/web-redditEmbeddings-subreddits.csv', header=None)
-df_title.TIMESTAMP = pd.to_datetime(df_title.TIMESTAMP)
-df_body.TIMESTAMP = pd.to_datetime(df_body.TIMESTAMP)
 df_all = pd.concat([df_title, df_body])
-df_embeddings.rename({0:'sub'}, axis=1, inplace=True)
-df_current = df_all
 
-df_points = pd.read_csv('../data/projections/perp_10_2500subs.csv')
+all_subs = set()
+all_subs.update(df_points['sub'])
+
+df_all = df_all[df_all.SOURCE_SUBREDDIT.map(lambda x: x in all_subs) | df_all.TARGET_SUBREDDIT.map(lambda x: x in all_subs)]
+df_all.TIMESTAMP = pd.to_datetime(df_all.TIMESTAMP)
+
+df_source = df_all.set_index('SOURCE_SUBREDDIT')
+df_target = df_all.set_index('TARGET_SUBREDDIT')
+
+df_current = df_all
 
 # Shift to 0 origin
 x_shift = df_points.x.min()
@@ -37,8 +38,18 @@ y_shift = df_points.y.min()
 df_points.x = df_points.x + (-x_shift)
 df_points.y = df_points.y +(-y_shift)
 
-# print(df_points.x.max())
-# print(df_points.y.max())
+bins = pd.cut(df_all.TIMESTAMP, 50)
+df_all['bin'] = bins
+pos_rows = df_all[df_all.LINK_SENTIMENT == 1]
+neg_rows = df_all[df_all.LINK_SENTIMENT == -1]
+
+
+
+with open('../data/tags/tag_hierarchical.json', 'r') as f:
+    tag_graph = json.load(f)
+    
+
+# tag_filter
 
 def prepare_csv(df):
     csv_obj = StringIO()
@@ -46,7 +57,6 @@ def prepare_csv(df):
     csv_ready = csv_obj.getvalue()
     csv_obj.close()
     return csv_ready
-
 
 @app.route("/", methods=['POST', 'GET'])
 def home():
@@ -57,16 +67,24 @@ def home():
 @app.route('/data')
 def serve_data():
     if request.args.get('g') == 'volume_hist':
-        return prepare_csv(df_current)
+        df_vol = pd.DataFrame(pos_rows.groupby('bin')['POST_ID'].count().values, columns=['positive'])
+        df_vol['negative'] = neg_rows.groupby('bin')['POST_ID'].count().values
+        return prepare_csv(df_vol)
 
     if request.args.get('g') == 'sub_points':
         return prepare_csv(df_points)
 
+    if request.args.get('g') == 'tag_graph':
+        return jsonify(tag_graph['root'])
 
 @socketio.on('date_change')
 def on_date_update(dates):
     df_current = df_all
     emit('update_graph', {'one':'msg'})
+    
+
+
+
 
 
 if __name__ == "__main__":

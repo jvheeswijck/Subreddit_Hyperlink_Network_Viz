@@ -13,12 +13,11 @@ body {
 
 #sidebar {
     min-width: 15vw;
-    max-width: 15vw;
+    max-width: 30vw;
     min-height: 100vh;
     background-color: #555;
     opacity: 0.9;
     z-index: 1;
-    /* background-color: peru; */
     transition: all 0.25s ease-in-out;
 }
 
@@ -41,7 +40,6 @@ body {
     opacity: 0.9;
     z-index: 1;
     background-color: #555;
-    /* background-color: peru; */
     transition: all 0.25s ease-in-out;
 }
 
