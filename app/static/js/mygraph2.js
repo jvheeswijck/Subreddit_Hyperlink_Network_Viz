@@ -23,7 +23,7 @@ var zoom = d3.zoom()
         svg.selectAll('circle')
             .attr('transform', d3.event.transform);
         tooltip.attr('transform', d3.event.transform);
-        svg.selectAll('line')
+        svg.selectAll('path')
             .attr('transform', d3.event.transform);
         tooltip.attr('transform', d3.event.transform);
         // style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
@@ -37,8 +37,8 @@ var xScale = null;
 var yScale = null;
 
 var simulation = d3.forceSimulation()
-    // .force("charge", null)//.strength(-200))
-    .force("link", d3.forceLink().id(function (d) { return d.sub; }))//.distance(40))
+    // .force("charge", d3.forceManyBody().strength(-30000))
+    .force("link", d3.forceLink().id(function (d) { return d.sub; }).distance(40))
     // .force("x", d3.forceX(width / 2))
     // .force("y", d3.forceY(height / 2))
     .force('collision', d3.forceCollide().radius(4))
@@ -52,10 +52,11 @@ var link = svg.selectAll(".link"),
 
 var adjlist = [];
 
+// jsonfile = d3.json("https://raw.githubusercontent.com/Pratikeshsingh/DSP/master/sourcetarget.json").then(function (data) {
 jsonfile = d3.json("/jsondata").then(function (data) {
 
 
-    console.log(data)
+    // console.log(data)
 
     xScale = d3.scaleLinear()
         .domain(d3.extent(data.nodes, (d) => d.x))
@@ -81,22 +82,35 @@ jsonfile = d3.json("/jsondata").then(function (data) {
         .on('mouseover', nodeOverFunction)
         .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
         .on('mouseout', nodedOutFunction);
-        // .call(drag(simulation));
+    // .call(drag(simulation));
 
-        svg.call(zoom.transform, transform);
-
-
-    //console.log(node)
+    //    console.log(node)
     link = link
         .data(data.links)
         .enter()
-        .append("line")
-        .attr("stroke", "#aaa")
-        .attr("stroke-width", "1px")
-        .attr("x1", (d) => xScale(d.source.x))
-        .attr("y1", (d) => yScale(d.source.y))
-        .attr("x2", (d) => xScale(d.target.x))
-        .attr("y2", (d) => yScale(d.target.y))
+        .append("path")
+        // .attr("stroke", "#aaa")
+        // .attr("stroke-width", "1px")
+    // .attr("x1", (d) => xScale(d.source.x))
+    // .attr("y1", (d) => yScale(d.source.y))
+    // .attr("x2", (d) => xScale(d.target.x))
+    // .attr("y2", (d) => yScale(d.target.y))
+
+
+    link.attr("d", function (d) {
+        // var dx = d.target.x - d.source.x,
+        //     dy = d.target.y - d.source.y,
+        //     dr = Math.sqrt(dx * dx + dy * dy);
+        var dx = xScale(d.target.x) - xScale(d.source.x),
+            dy = yScale(d.target.y) - yScale(d.source.y),
+            dr = Math.sqrt(dx * dx + dy * dy);
+        return "M" + xScale(d.source.x) + "," + yScale(d.source.y) + "A" + dr + "," + dr + " 0 0,1 "
+            + xScale(d.target.x) + "," + yScale(d.target.y);
+    });
+
+    link.style('fill', 'none')
+  		.style('stroke', '#aaa')
+      .style("stroke-width", '2px');
 
 
     data.links.forEach(function (d) {
@@ -115,7 +129,7 @@ function ticked() {
     //     .attr("y1", function (d) { return d.source.y; })
     //     .attr("x2", function (d) { return d.target.x; })
     //     .attr("y2", function (d) { return d.target.y; });
-        
+
 
     // node.attr("cx", function (d) { return d.x; })
     //     .attr("cy", function (d) { return d.y; });

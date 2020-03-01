@@ -147,3 +147,7 @@ body {
     left: -11px;
     /* margin-left: 20px; */
 }
+path {
+    opacity: 0.5;
+    stroke-dasharray: 10,4;
+}
