@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 from io import StringIO
-from flask import Flask, render_template, request, send_from_directory, jsonify
+from flask import Flask, render_template, request, send_from_directory, jsonify, send_file
 from flask_socketio import SocketIO, emit, send
 
 # Temp
@@ -83,7 +83,9 @@ def on_date_update(dates):
     emit('update_graph', {'one':'msg'})
     
 
-
+@app.route("/jsondata",methods=["GET","POST"])
+def returnjson():
+    return send_file("../data/sourcetarget.json")
 
 
 
