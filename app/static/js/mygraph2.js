@@ -15,7 +15,7 @@ var svg = d3.select('#svg-div')
     .classed('svg-content', true);
 
 //  FIGURE OUT THIS VIEWBOX STUFF
-
+var transform = d3.zoomIdentity.translate(100, 50).scale(0.8)
 var zoom = d3.zoom()
     .scaleExtent([0.2, 10])
     .duration(500)
@@ -33,31 +33,26 @@ var zoom = d3.zoom()
 
 svg.call(zoom);
 
-
 var xScale = null;
 var yScale = null;
 
-
-// var svg = d3.select('#svg-div')
-//     .append('svg').attr("width", width)
-//     .attr("height", height)
-
 var simulation = d3.forceSimulation()
-    .force("charge", d3.forceManyBody())//.strength(-200))
+    // .force("charge", null)//.strength(-200))
     .force("link", d3.forceLink().id(function (d) { return d.sub; }))//.distance(40))
-    .force("x", d3.forceX(width / 2))
-    .force("y", d3.forceY(height / 2))
+    // .force("x", d3.forceX(width / 2))
+    // .force("y", d3.forceY(height / 2))
+    .force('collision', d3.forceCollide().radius(4))
     .on("tick", ticked);
+
+// simulation.stop();
+
 
 var link = svg.selectAll(".link"),
     node = svg.selectAll(".node");
 
 var adjlist = [];
 
-
-// jsonfile = d3.json(`https://raw.githubusercontent.com/Pratikeshsingh/DSP/master/sourcetargetsubset.json`).then(function (data) {
-    // jsonfile = d3.json(`https://raw.githubusercontent.com/Pratikeshsingh/DSP/master/sourcetarget.json`).then(function (data) {
-    jsonfile = d3.json("/jsondata").then(function (data) {
+jsonfile = d3.json("/jsondata").then(function (data) {
 
 
     console.log(data)
@@ -85,10 +80,11 @@ var adjlist = [];
         .style("opacity", 0.8)
         .on('mouseover', nodeOverFunction)
         .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
-        .on('mouseout', nodedOutFunction)
-        .call(drag(simulation));
+        .on('mouseout', nodedOutFunction);
+        // .call(drag(simulation));
 
-    // .style("fill", function (d) { return d.id; });
+        svg.call(zoom.transform, transform);
+
 
     //console.log(node)
     link = link
@@ -96,7 +92,11 @@ var adjlist = [];
         .enter()
         .append("line")
         .attr("stroke", "#aaa")
-        .attr("stroke-width", "1px");
+        .attr("stroke-width", "1px")
+        .attr("x1", (d) => xScale(d.source.x))
+        .attr("y1", (d) => yScale(d.source.y))
+        .attr("x2", (d) => xScale(d.target.x))
+        .attr("y2", (d) => yScale(d.target.y))
 
 
     data.links.forEach(function (d) {
@@ -107,15 +107,18 @@ var adjlist = [];
 
     //node.on("mouseover", focus).on("mouseout", unfocus);
 });
+simulation.tick(10);
 
 function ticked() {
-    link.attr("x1", function (d) { return d.source.x; })
-        .attr("y1", function (d) { return d.source.y; })
-        .attr("x2", function (d) { return d.target.x; })
-        .attr("y2", function (d) { return d.target.y; });
 
-    node.attr("cx", function (d) { return d.x; })
-        .attr("cy", function (d) { return d.y; });
+    // link.attr("x1", function (d) { return d.source.x; })
+    //     .attr("y1", function (d) { return d.source.y; })
+    //     .attr("x2", function (d) { return d.target.x; })
+    //     .attr("y2", function (d) { return d.target.y; });
+        
+
+    // node.attr("cx", function (d) { return d.x; })
+    //     .attr("cy", function (d) { return d.y; });
 }
 
 
