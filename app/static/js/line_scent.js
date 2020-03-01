@@ -31,16 +31,8 @@ class LineScent {
   }
   load_data(data) {
     this.data = data;
-
-    // temp
-    // var n = 21;
-    // this.data1 = d3.range(n).map(function (d) { return { "y": d3.randomUniform(1)() } });
-    // this.data2 = d3.range(n).map(function (d) { return { "y": d3.randomUniform(1)() } })
-
-
     this.xScale.domain([0, 49]);
     this.yScale.domain([0, d3.max(data, (d)=>d.positive)*2]);
-
 
     // this.pos_line
     //   .x((d, i) => this.xScale(i)) // set the x values for the line generator
