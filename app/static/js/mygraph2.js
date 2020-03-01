@@ -70,13 +70,33 @@ jsonfile = d3.json("/jsondata").then(function (data) {
     simulation.nodes(data.nodes);
     simulation.force("link").links(data.links);
 
+
+    link = link
+        .data(data.links)
+        .enter()
+        .append("path")
+    // .attr("stroke", "#aaa")
+    // .attr("stroke-width", "1px")
+    // .attr("x1", (d) => xScale(d.source.x))
+    // .attr("y1", (d) => yScale(d.source.y))
+    // .attr("x2", (d) => xScale(d.target.x))
+    // .attr("y2", (d) => yScale(d.target.y))
+
+
     node = node
         .data(data.nodes)
         .enter().append("circle")
         .attr("cx", function (d) { return xScale(d.x); })
         .attr("cy", function (d) { return yScale(d.y); })
         .attr("class", "node")
-        .attr("r", 6)
+        //.attr("r", 6)
+        .attr("r", function (d) {
+            d.weight = link.filter(function (l) {
+                return l.source.index == d.index || l.target.index == d.index
+            }).size();
+            var minRadius = 5;
+            return minRadius + (d.weight/10);
+        })
         .style("fill", "rgb(172, 220, 114)")
         .style("opacity", 0.8)
         .on('mouseover', nodeOverFunction)
@@ -85,22 +105,9 @@ jsonfile = d3.json("/jsondata").then(function (data) {
     // .call(drag(simulation));
 
     //    console.log(node)
-    link = link
-        .data(data.links)
-        .enter()
-        .append("path")
-        // .attr("stroke", "#aaa")
-        // .attr("stroke-width", "1px")
-    // .attr("x1", (d) => xScale(d.source.x))
-    // .attr("y1", (d) => yScale(d.source.y))
-    // .attr("x2", (d) => xScale(d.target.x))
-    // .attr("y2", (d) => yScale(d.target.y))
 
 
     link.attr("d", function (d) {
-        // var dx = d.target.x - d.source.x,
-        //     dy = d.target.y - d.source.y,
-        //     dr = Math.sqrt(dx * dx + dy * dy);
         var dx = xScale(d.target.x) - xScale(d.source.x),
             dy = yScale(d.target.y) - yScale(d.source.y),
             dr = Math.sqrt(dx * dx + dy * dy);
@@ -109,8 +116,8 @@ jsonfile = d3.json("/jsondata").then(function (data) {
     });
 
     link.style('fill', 'none')
-  		.style('stroke', '#aaa')
-      .style("stroke-width", '2px');
+        .style('stroke', '#aaa')
+        .style("stroke-width", '2px');
 
 
     data.links.forEach(function (d) {
@@ -121,7 +128,7 @@ jsonfile = d3.json("/jsondata").then(function (data) {
 
     //node.on("mouseover", focus).on("mouseout", unfocus);
 });
-simulation.tick(10);
+simulation.tick(1000);
 
 function ticked() {
 
@@ -146,7 +153,14 @@ function nodeOverFunction(d) {
         .style('opacity', 1)
         .transition()
         .duration(100)
-        .attr('r', '12px')
+        // .attr('r', '12px')
+        .attr("r", function (d) {
+            d.weight = link.filter(function (l) {
+                return l.source.index == d.index || l.target.index == d.index
+            }).size();
+            var minRadius = 10;
+            return minRadius + (d.weight/10);
+        })
 
 
     var index = d3.select(d3.event.target).datum().index;
@@ -164,7 +178,14 @@ function nodedOutFunction() {
         .transition()
         .duration(100)
         .style('opacity', 0.8)
-        .attr('r', '8px')
+        // .attr('r', '8px')
+        .attr("r", function (d) {
+            d.weight = link.filter(function (l) {
+                return l.source.index == d.index || l.target.index == d.index
+            }).size();
+            var minRadius = 5;
+            return minRadius + (d.weight/10);
+        })
     tooltip.style("visibility", "hidden")
 
     node.style("opacity", 0.8);
