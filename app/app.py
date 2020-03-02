@@ -15,6 +15,8 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1
 socketio = SocketIO(app)
 
+link_limit = 500
+
 def split_sentiment(df):
     mask = df.sentiment == 1
     return [df[mask], df[~mask]]
@@ -97,11 +99,16 @@ def returnjson():
 
 @app.route("/nodes",methods=["GET","POST"])
 def get_nodes():
-    return prepare_csv(df_points)
+    links_trunc = links[:link_limit]
+    sub_set = set()
+    sub_set.update(links_trunc.source)
+    sub_set.update(links_trunc.target)
+    points = df_points[df_points['sub'].map(lambda x: x in sub_set)]
+    return prepare_csv(points)
 
 @app.route("/links",methods=["GET","POST"])
 def get_links():
-    return prepare_csv(links.iloc[:2000])
+    return prepare_csv(links.iloc[:link_limit])
 
 
 def filter_data():

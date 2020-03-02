@@ -4,6 +4,8 @@ var base_url = `http://${document.domain}:${location.port}`;
 var default_circle_min_radius = 4;
 var default_circle_max_radius = 12;
 var default_opacity = 0.8;
+var line_width_max = 8;
+var line_width_min = 0.5;
 
 // Margins
 var margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -14,6 +16,7 @@ var margin = { top: 0, right: 0, bottom: 0, left: 0 },
 var xScale = null;
 var yScale = null;
 var nodeScale = d3.scaleSqrt().range([default_circle_min_radius, default_circle_max_radius]);
+var lineScale = d3.scaleLog().range([line_width_min, line_width_max]);
 
 var svg = d3.select('#svg-div')
     .append('svg')
@@ -69,7 +72,6 @@ d3.csv("/nodes").then(function (data_node) {
         node_data.forEach(function (node) {
             nodeById.set(node.sub, node);
         });
-
         link_data.forEach(function (link) {
             link.source = nodeById.get(link.source);
             link.target = nodeById.get(link.target);
@@ -82,6 +84,8 @@ d3.csv("/nodes").then(function (data_node) {
         yScale = d3.scaleLinear()
             .domain(d3.extent(node_data, (d) => d.y))
             .range([0, height])
+
+        lineScale.domain(d3.extent(link_data, (d) => Number(d.n)))
 
         nodes = nodes
             .data(node_data)
@@ -103,7 +107,7 @@ d3.csv("/nodes").then(function (data_node) {
             .enter()
             .append("line")
             .attr("stroke", "#aaa")
-            .attr("stroke-width", "1px")
+            .attr("stroke-width", (d) => lineScale(d.n))
             .attr("x1", (d) => xScale(d.source.x))
             .attr("y1", (d) => yScale(d.source.y))
             .attr("x2", (d) => xScale(d.target.x))
@@ -114,8 +118,8 @@ d3.csv("/nodes").then(function (data_node) {
             adjlist[d.target.index + "-" + d.source.index] = true;
         });
 
-        svg.call(zoom.transform, transform);
-
+        nodes.call(zoom.transform, transform);
+        links.call(zoom.transform, transform);
     });
 })
 
