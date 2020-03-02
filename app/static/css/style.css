@@ -147,3 +147,8 @@ body {
     left: -11px;
     /* margin-left: 20px; */
 }
+
+line {
+    opacity: 0.5;
+    stroke-dasharray: 10, 4;
+  }
