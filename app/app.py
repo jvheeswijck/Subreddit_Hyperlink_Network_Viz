@@ -15,7 +15,7 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1
 socketio = SocketIO(app)
 
-link_limit = 500
+link_limit = 5000
 
 def split_sentiment(df):
     mask = df.sentiment == 1
