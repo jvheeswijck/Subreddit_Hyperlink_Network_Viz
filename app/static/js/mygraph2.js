@@ -15,7 +15,7 @@ var default_circle_max_radius = 10;
 var default_node_opacity = 0.8;
 
 const line_width_max = 2,
-    line_width_min = 0.4;
+    line_width_min = 0.05;
 
 const min_line_opac = 0.1,
     max_line_opac = 0.7;
@@ -220,7 +220,7 @@ d3.csv("/nodes").then(function (data_node) {
             .append("line")
             .style("stroke", "#aaa")
             // .attr("stroke-width", (d) => lineScale(d.n))
-            .style("stroke-width", 0.4)
+            .style("stroke-width", (d) => lineScale(d.n))
             .style('opacity', 1)
             .style('visibility', 'hidden')
             // .style('stroke-dasharray', (d) => (d.sentiment == "1" ? null : null))
