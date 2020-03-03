@@ -198,6 +198,9 @@ d3.csv("/nodes").then(function (data_node) {
                     // clicked_node = this;
                 }
             })
+            .sort(function(a,b) {
+                return b.total_out - a.total_out
+            })
 
         // Animate Nodes
         nodes.transition()
@@ -234,6 +237,7 @@ d3.csv("/nodes").then(function (data_node) {
             .style("stroke-width", (d) => lineScale(d.n))
             .style('opacity', 1)
             .style('visibility', 'hidden')
+            // .style('stroke-dasharray', "4")
             // .style('stroke-dasharray', (d) => (d.sentiment == "1" ? null : null))
             .attr("x1", (d) => xScale(d.source.x))
             .attr("y1", (d) => yScale(d.source.y))
