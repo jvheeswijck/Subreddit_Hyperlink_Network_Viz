@@ -21,10 +21,19 @@ const min_line_opac = 0.1,
     max_line_opac = 0.7;
 
 
+// Sentiment Colors
+// Interpolate red and blue
+
 var link_highlight_type = 'both'
 // End Settings //
 
 // Set functions //
+
+
+
+
+
+click_state = false;
 
 // Margins
 var margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -61,7 +70,6 @@ d3.select('#svg-div').call(zoom);
 
 // Force Graph
 var simulation = null;
-
 
 // var simulation = d3.forceSimulation()
 //     // .force("charge", d3.forceManyBody().strength(-30000))
@@ -268,21 +276,39 @@ function nodeOverFunction(d) {
             return content;
         })
 
-    highlight_layer = d3.select(this);
+    // highlight_node = d3.select(this);
     // .style('opacity', 1)
     // .style('fill', 'red')
 
     var index = d3.select(d3.event.target).datum().index;
-    nodes.style("fill", function (o) {
-        return neigh(index, o.index) ? highlight_node_color_primary : default_node_color;
-    });
+    // nodes.style("fill", function (o) {
+    //     return neigh(index, o.index) ? highlight_node_color_primary : default_node_color;
+    // });
     // links.filter(function (d){
     //     return d.source.index == index || d.target.index == index;
     // })
+    
+    // Filter
     highlight_links = links.filter(function (d) {
         return d.source.index == index || d.target.index == index;
-    });
-    test_links = highlight_links
+    }).nodes();
+    highlight_nodes = nodes.filter((d) => neigh(index, d.index)).nodes();
+
+    // Add
+    highlight_links.forEach(function(d){
+        highlight_layer.node().appendChild(d.cloneNode())
+    })
+
+    selected_node = this.cloneNode()
+    highlight_layer.node().appendChild(selected_node)
+    highlight_nodes.forEach(function(d){
+        highlight_layer.node().appendChild(d.cloneNode())
+    })
+    highlight_layer.selectAll('.node').style('fill', 'red')
+    d3.select(selected_node)
+    .on('mouseout', nodeOutFunction)
+    .on('mouseover', nodeOverFunction)
+
     // console.log(d3.select(this).datum());
     // let data = d3.select(this).datum().adj_src;
     // highlight_links = highlight_layer
@@ -297,12 +323,14 @@ function nodeOverFunction(d) {
     //     .attr("x2", (d) => xScale(d.target.x))
     //     .attr("y2", (d) => yScale(d.target.y));
     link_layer.style('opacity', 0.1)
-
+    node_layer.style('opacity', 0.5)
 };
 test_links = null;
 // function adjacency
 
 function nodeOutFunction() {
+    $('#highlight-layer').empty();
+    // highlight_layer.empty();
     // d3.select(this)
     //     .transition()
     //     .duration(100)
@@ -319,7 +347,8 @@ function nodeOutFunction() {
     nodes
         .style("opacity", default_node_opacity)
         .style("fill", default_node_color)
-    link_layer.style('opacity', (d) => 1);
+    node_layer.style('opacity', 1)
+    link_layer.style('opacity', 1);
 }
 
 tooltip = d3.select("body").append("div")
@@ -372,3 +401,8 @@ function updateNodes(data) {
 
 // Animate Nodes
 // Animate Links
+
+
+function drawLinkedTooltips(){
+
+}
