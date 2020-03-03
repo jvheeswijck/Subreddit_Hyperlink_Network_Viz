@@ -84,8 +84,7 @@ var node_layer = svg
 var highlight_layer = svg
     .append('g')
     .attr('class', 'layer')
-    .attr('id', 'highlight-layer')
-    .attr('id', 'high');
+    .attr('id', 'highlight-layer');
 
 
 var adjlist = [];
@@ -106,6 +105,8 @@ d3.csv("/nodes").then(function (data_node) {
             node.out_pos = 0;
             node.in_neg = 0;
             node.out_neg = 0;
+            node.adj_src = [];
+            node.adj_trgt = [];
             node.index = index;
             index++;
             Object.defineProperty(node, 'total_in', {
@@ -132,6 +133,8 @@ d3.csv("/nodes").then(function (data_node) {
             } else {
                 link.target.in_neg += link.n
             }
+            link.source.adj_src.push(link);
+            link.target.adj_trgt.push(link);
         });
 
 
@@ -155,12 +158,19 @@ d3.csv("/nodes").then(function (data_node) {
             .attr("cx", (d) => xScale(d.x))
             .attr("cy", (d) => yScale(d.y))
             .attr("class", "node")
-            .style("r", (d) => nodeScale(d.total_out))
+            .attr("r", 0)
             .style("fill", default_node_color)
             .style("opacity", default_node_opacity)
             .on('mouseover', nodeOverFunction)
             .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
             .on('mouseout', nodeOutFunction);
+
+        nodes.transition()
+            .duration(300)
+            .delay((d, i) => (i % 10) * 100)
+            // .attr("opacity", 0.8)
+            // .attr('r', )
+            .attr("r", (d) => nodeScale(d.total_out));
 
 
 
@@ -188,11 +198,18 @@ d3.csv("/nodes").then(function (data_node) {
             // .attr("stroke-width", (d) => lineScale(d.n))
             .style("stroke-width", 0.4)
             .style('opacity', 1)
+            .style('visibility', 'hidden')
             // .style('stroke-dasharray', (d) => (d.sentiment == "1" ? null : null))
             .attr("x1", (d) => xScale(d.source.x))
             .attr("y1", (d) => yScale(d.source.y))
             .attr("x2", (d) => xScale(d.target.x))
             .attr("y2", (d) => yScale(d.target.y));
+
+        links
+            .transition()
+            .delay((d, i) => (i % 10) * 100 + 1000)
+            .duration(0)
+            .style('visibility', 'visible');
         // .attr('display', 'none');
 
         // links.attr("d", function (d) {
@@ -259,13 +276,31 @@ function nodeOverFunction(d) {
     nodes.style("fill", function (o) {
         return neigh(index, o.index) ? highlight_node_color_primary : default_node_color;
     });
-    links.filter()
-    // link_layer.style("opacity", function (o) {
-    //     return o.source.index == index || o.target.index == index ? 1 : 0.1;
-    // });
+    // links.filter(function (d){
+    //     return d.source.index == index || d.target.index == index;
+    // })
+    highlight_links = links.filter(function (d) {
+        return d.source.index == index || d.target.index == index;
+    });
+    test_links = highlight_links
+    // console.log(d3.select(this).datum());
+    // let data = d3.select(this).datum().adj_src;
+    // highlight_links = highlight_layer
+    //     .data(data)
+    //     .enter()
+    //     .append('line')
+    //     .style("stroke", "#aaa")
+    //     .style("stroke-width", 0.4)
+    //     .style('opacity', 1)
+    //     .attr("x1", (d) => xScale(d.source.x))
+    //     .attr("y1", (d) => yScale(d.source.y))
+    //     .attr("x2", (d) => xScale(d.target.x))
+    //     .attr("y2", (d) => yScale(d.target.y));
     link_layer.style('opacity', 0.1)
 
 };
+test_links = null;
+// function adjacency
 
 function nodeOutFunction() {
     // d3.select(this)
