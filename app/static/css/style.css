@@ -131,6 +131,17 @@ body {
     visibility: hidden;
   }
 
+#node-info {
+    position: relative;
+    background-color: red;
+    top: 60%;
+    height: 20%;
+    left: 80%;
+    width: 20%;
+    z-index: 300;
+    padding: 1rem;
+}
+
 .collapse-spot-left {
     position: relative;
     width: 0; 

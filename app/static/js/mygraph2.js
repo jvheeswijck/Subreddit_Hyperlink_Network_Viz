@@ -33,7 +33,8 @@ var link_highlight_type = 'both'
 
 
 
-click_state = false;
+var click_state = false;
+var node_labels = false;
 
 // Margins
 var margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -56,6 +57,18 @@ var svg = d3.select('#svg-div')
     .append('g')
     .attr('id', 'main-graph')
 
+var background_area = d3.select('#svg-div svg')
+.insert("g",":first-child")
+.append('rect')
+.attr('fill', 'red')
+.attr('width', width)
+.attr('height', height)
+.attr('opacity', 0)
+
+background_area.on('click', () => {
+    click_state = false;
+    nodeOutFunction();
+})
 var layers = svg.selectAll('g')
 
 // Pan and Zoom
@@ -67,6 +80,8 @@ var zoom = d3.zoom()
             .attr('transform', d3.event.transform)
     });
 d3.select('#svg-div').call(zoom);
+
+svg.on('click', () => console.log('Detected click'))
 
 // Force Graph
 var simulation = null;
@@ -171,7 +186,8 @@ d3.csv("/nodes").then(function (data_node) {
             .style("opacity", default_node_opacity)
             .on('mouseover', nodeOverFunction)
             .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
-            .on('mouseout', nodeOutFunction);
+            .on('mouseout', nodeOutFunction)
+            .on('click', (d) => click_state = true)
 
         nodes.transition()
             .duration(300)
@@ -270,85 +286,61 @@ function ticked() {
 
 
 function nodeOverFunction(d) {
+
     tooltip.style("visibility", "visible")
-        .html(() => {
-            const content = `<strong>Subreddit:</strong> <span>${d.sub}</span>`
-            return content;
+    .html(() => {
+        const content = `<strong>Subreddit:</strong> <span>${d.sub}</span>`
+        return content;
+    })
+
+    if (!click_state) {
+
+        var index = d3.select(d3.event.target).datum().index;
+        // nodes.style("fill", function (o) {
+        //     return neigh(index, o.index) ? highlight_node_color_primary : default_node_color;
+        // });
+        // links.filter(function (d){
+        //     return d.source.index == index || d.target.index == index;
+        // })
+
+        // Filter
+        highlight_links = links.filter(function (d) {
+            return d.source.index == index || d.target.index == index;
+        }).nodes();
+        highlight_nodes = nodes.filter((d) => neigh(index, d.index)).nodes();
+
+        // Add
+        highlight_links.forEach(function (d) {
+            highlight_layer.node().appendChild(d.cloneNode())
         })
 
-    // highlight_node = d3.select(this);
-    // .style('opacity', 1)
-    // .style('fill', 'red')
+        selected_node = this.cloneNode()
+        highlight_layer.node().appendChild(selected_node)
+        highlight_nodes.forEach(function (d) {
+            highlight_layer.node().appendChild(d.cloneNode())
+        })
+        highlight_layer.selectAll('.node').style('fill', 'red')
+        d3.select(selected_node)
+            .on('mouseout', nodeOutFunction)
+            .on('mouseover', nodeOverFunction)
 
-    var index = d3.select(d3.event.target).datum().index;
-    // nodes.style("fill", function (o) {
-    //     return neigh(index, o.index) ? highlight_node_color_primary : default_node_color;
-    // });
-    // links.filter(function (d){
-    //     return d.source.index == index || d.target.index == index;
-    // })
-    
-    // Filter
-    highlight_links = links.filter(function (d) {
-        return d.source.index == index || d.target.index == index;
-    }).nodes();
-    highlight_nodes = nodes.filter((d) => neigh(index, d.index)).nodes();
-
-    // Add
-    highlight_links.forEach(function(d){
-        highlight_layer.node().appendChild(d.cloneNode())
-    })
-
-    selected_node = this.cloneNode()
-    highlight_layer.node().appendChild(selected_node)
-    highlight_nodes.forEach(function(d){
-        highlight_layer.node().appendChild(d.cloneNode())
-    })
-    highlight_layer.selectAll('.node').style('fill', 'red')
-    d3.select(selected_node)
-    .on('mouseout', nodeOutFunction)
-    .on('mouseover', nodeOverFunction)
-
-    // console.log(d3.select(this).datum());
-    // let data = d3.select(this).datum().adj_src;
-    // highlight_links = highlight_layer
-    //     .data(data)
-    //     .enter()
-    //     .append('line')
-    //     .style("stroke", "#aaa")
-    //     .style("stroke-width", 0.4)
-    //     .style('opacity', 1)
-    //     .attr("x1", (d) => xScale(d.source.x))
-    //     .attr("y1", (d) => yScale(d.source.y))
-    //     .attr("x2", (d) => xScale(d.target.x))
-    //     .attr("y2", (d) => yScale(d.target.y));
-    link_layer.style('opacity', 0.1)
-    node_layer.style('opacity', 0.5)
+        link_layer.style('opacity', 0.1)
+        node_layer.style('opacity', 0.5)
+    }
 };
-test_links = null;
-// function adjacency
 
 function nodeOutFunction() {
-    $('#highlight-layer').empty();
-    // highlight_layer.empty();
-    // d3.select(this)
-    //     .transition()
-    //     .duration(100)
-    //     .style('opacity', 0.8)
-    //     .attr("r", function (d) {
-    //         d.weight = link.filter(function (l) {
-    //             return l.source.index == d.index || l.target.index == d.index
-    //         }).size();
-    //         var minRadius = 5;
-    //         return minRadius + (d.weight / 10);
-    //     })
     tooltip.style("visibility", "hidden")
+    if (!click_state) {
+        $('#highlight-layer').empty();
+      
 
-    nodes
-        .style("opacity", default_node_opacity)
-        .style("fill", default_node_color)
-    node_layer.style('opacity', 1)
-    link_layer.style('opacity', 1);
+        nodes
+            .style("opacity", default_node_opacity)
+            .style("fill", default_node_color)
+        node_layer.style('opacity', 1)
+        link_layer.style('opacity', 1);
+    }
 }
 
 tooltip = d3.select("body").append("div")
@@ -403,6 +395,7 @@ function updateNodes(data) {
 // Animate Links
 
 
-function drawLinkedTooltips(){
+function drawLinkedTooltips() {
 
 }
+
