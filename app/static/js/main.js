@@ -29,7 +29,9 @@ $(document).ready(function () {
 
     // Draw Scent
     date_scent = new LineScent('.noUi-target');
-    scent_data = d3.csv(`${base_url}/data?g=volume_hist`);
+    scent_data = d3.csv(`${base_url}/data?g=volume_hist`, function(d){
+        return {'positive':Number(d.positive), 'negative':Number(d.negative)}
+    });
     scent_data.then(function(data){
         date_scent.load_data(data);
         date_scent.draw();

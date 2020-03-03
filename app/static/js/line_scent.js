@@ -22,8 +22,10 @@ class LineScent {
 
     this.xScale = d3.scaleLinear()
       .range([0, this.width]);
-    this.yScale = d3.scaleLinear()
-      .range([0, ((this.height / 2) - 1)]); // output
+    this.yScaleNeg = d3.scaleLinear()
+      .range([0, ((this.height / 2) - 1)]);
+    this.yScalePos = d3.scaleLinear()
+      .range([0, ((this.height / 2) -1)]);
     this.neg_line = d3.line();
     this.pos_line = d3.line();
 
@@ -32,7 +34,8 @@ class LineScent {
   load_data(data) {
     this.data = data;
     this.xScale.domain([0, 49]);
-    this.yScale.domain([0, d3.max(data, (d)=>d.positive)*2]);
+    this.yScalePos.domain([0, d3.max(data, (d) => Number(d.positive))]);
+    this.yScaleNeg.domain([0, d3.max(data, (d) => Number(d.negative))]);
 
     // this.pos_line
     //   .x((d, i) => this.xScale(i)) // set the x values for the line generator
@@ -43,12 +46,12 @@ class LineScent {
       .curve(d3.curveMonotoneX)
       .x((d, i) => this.xScale(i))
       .y0(this.height * 0.5)
-      .y1((d) => 0.5*this.height - this.yScale(d.positive));
+      .y1((d) => 0.5 * this.height - this.yScalePos(d.positive));
     this.neg_area = d3.area()
       .curve(d3.curveMonotoneX)
       .x((d, i) => this.xScale(i))
-      .y0(0.5*this.height)
-      .y1((d) => this.yScale(d.negative) + 0.5*this.height);
+      .y0(0.5 * this.height)
+      .y1((d) => this.yScaleNeg(d.negative) + 0.5 * this.height);
 
     // this.neg_line
     //   .x((d, i) => this.xScale(i)) // set the x values for the line generator
@@ -104,14 +107,15 @@ class LineScent {
     this.height = 40 - margin.top - margin.bottom;
 
     this.xScale.range([0, this.width])
-    this.yScale.range([0, this.height / 2 - 1]) // input
+    this.yScalePos.range([0, this.height / 2 - 1]) // input
+    this.yScaleNeg.range([0, this.height / 2 - 1]) // input
     this.pos_line
       .x((d, i) => this.xScale(i)) // set the x values for the line generator
-      .y((d) => 0.5 * this.height - this.yScale(d.positive)) // set the y values for the line generator 
+      .y((d) => 0.5 * this.height - this.yScalePos(d.positive)) // set the y values for the line generator 
       .curve(d3.curveMonotoneX) //
     this.neg_line
       .x((d, i) => this.xScale(i)) // set the x values for the line generator
-      .y((d) => 0.5 * this.height + this.yScale(d.negative)) // set the y values for the line generator 
+      .y((d) => 0.5 * this.height + this.yScaleNeg(d.negative)) // set the y values for the line generator 
       .curve(d3.curveMonotoneX) //
   }
 }
