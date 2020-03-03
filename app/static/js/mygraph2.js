@@ -8,6 +8,7 @@ var node_limit = 2000;
 // Styling
 var default_node_color = "rgb(172, 220, 114)";
 var highlight_node_color_primary = 'red';
+var highlight_node_color_secondary = '#7a99c5';
 
 var default_circle_min_radius = 2;
 var default_circle_max_radius = 10;
@@ -31,9 +32,7 @@ var link_highlight_type = 'both'
 
 
 
-
-
-var click_state = false;
+var clicked_node = null;
 var node_labels = false;
 
 // Margins
@@ -57,19 +56,17 @@ var svg = d3.select('#svg-div')
     .append('g')
     .attr('id', 'main-graph')
 
-var background_area = d3.select('#svg-div svg')
-.insert("g",":first-child")
-.append('rect')
-.attr('fill', 'red')
-.attr('width', width)
-.attr('height', height)
-.attr('opacity', 0)
+var background_area = svg
+    .insert("g", ":first-child")
+    .append('rect')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('opacity', 0)
 
 background_area.on('click', () => {
-    click_state = false;
+    clicked_node = null;
     nodeOutFunction();
 })
-var layers = svg.selectAll('g')
 
 // Pan and Zoom
 var transform = d3.zoomIdentity.translate(100, 50).scale(0.8)
@@ -79,9 +76,7 @@ var zoom = d3.zoom()
         svg
             .attr('transform', d3.event.transform)
     });
-d3.select('#svg-div').call(zoom);
-
-svg.on('click', () => console.log('Detected click'))
+d3.select('#svg-div').call(zoom)
 
 // Force Graph
 var simulation = null;
@@ -111,7 +106,6 @@ var highlight_layer = svg
 
 
 var adjlist = [];
-
 let link_data = null;
 let node_data = null;
 var nodeById = d3.map();
@@ -120,9 +114,10 @@ var nodeById = d3.map();
 d3.csv("/nodes").then(function (data_node) {
     d3.csv('/links').then(function (data_link) {
         let index = 0;
-        link_data = data_link.slice(0, link_limit);
+        link_data = data_link.slice(0, link_limit); // Limit number of links
         node_data = data_node;
 
+        // Calculate relevant node information
         node_data.forEach(function (node) {
             node.in_pos = 0;
             node.out_pos = 0;
@@ -140,6 +135,8 @@ d3.csv("/nodes").then(function (data_node) {
             })
             nodeById.set(node.sub, node);
         });
+
+        // Build node-link relationships
         link_data.forEach(function (link) {
             link.source = nodeById.get(link.source);
             link.target = nodeById.get(link.target);
@@ -174,6 +171,7 @@ d3.csv("/nodes").then(function (data_node) {
         lineScale.domain(d3.extent(link_data, (d) => Number(d.n)))
         opacScale.domain(d3.extent(link_data, (d) => Number(d.n)))
 
+        // Draw Nodes
         nodes = node_layer.selectAll('.node')
             .data(node_data)
             .enter()
@@ -187,15 +185,27 @@ d3.csv("/nodes").then(function (data_node) {
             .on('mouseover', nodeOverFunction)
             .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
             .on('mouseout', nodeOutFunction)
-            .on('click', (d) => click_state = true)
+            .on('click', function (d) {
+                if (clicked_node == null) {
+                    clicked_node = this;
+                    // copy_node = this.cloneNode()
+                    // highlight_layer.appendChild()
+                } else {
+                    clearHighlights()
+                    clicked_node = this;
+                    setHighlights(d, this)
+                    // nodeOutFunction(d).bind(this);
+                    // clicked_node = this;
+                }
+            })
 
+        // Animate Nodes
         nodes.transition()
             .duration(300)
             .delay((d, i) => (i % 10) * 100)
             // .attr("opacity", 0.8)
             // .attr('r', )
             .attr("r", (d) => nodeScale(d.total_out));
-
 
 
         // simulation = d3.forceSimulation(nodes)
@@ -214,6 +224,7 @@ d3.csv("/nodes").then(function (data_node) {
         //     .attr('opacity', 0.8)
         //     .attr('r', default_circle_min_radius)
 
+        // Draw Links
         links = link_layer.selectAll('.link')
             .data(link_data)
             .enter()
@@ -229,12 +240,12 @@ d3.csv("/nodes").then(function (data_node) {
             .attr("x2", (d) => xScale(d.target.x))
             .attr("y2", (d) => yScale(d.target.y));
 
+        // Animate Links
         links
             .transition()
             .delay((d, i) => (i % 10) * 100 + 1000)
             .duration(0)
             .style('visibility', 'visible');
-        // .attr('display', 'none');
 
         // links.attr("d", function (d) {
         //     var dx = xScale(d.target.x) - xScale(d.source.x),
@@ -253,8 +264,8 @@ d3.csv("/nodes").then(function (data_node) {
             adjlist[d.target.index + "-" + d.source.index] = true;
         });
 
-        d3.select('#svg-div').attr('transform', transform);
-        svg.attr('transform', transform);
+        // d3.select('#svg-div').attr('transform', transform);
+        // svg.attr('transform', transform);
         // d3.zoomIdentity = transform;
     });
 })
@@ -267,6 +278,7 @@ function filterLinks() {
 
 }
 
+// Force Behaviour (Not Implemented)
 function ticked() {
     nodes.attr('cx', function (d) {
         return xScale(d.x)
@@ -284,63 +296,69 @@ function ticked() {
     //     .attr("cy", function (d) { return d.y; });
 }
 
-
+// Hover Functionalities
 function nodeOverFunction(d) {
-
     tooltip.style("visibility", "visible")
-    .html(() => {
-        const content = `<strong>Subreddit:</strong> <span>${d.sub}</span>`
-        return content;
-    })
-
-    if (!click_state) {
-
-        var index = d3.select(d3.event.target).datum().index;
-        // nodes.style("fill", function (o) {
-        //     return neigh(index, o.index) ? highlight_node_color_primary : default_node_color;
-        // });
-        // links.filter(function (d){
-        //     return d.source.index == index || d.target.index == index;
-        // })
-
-        // Filter
-        highlight_links = links.filter(function (d) {
-            return d.source.index == index || d.target.index == index;
-        }).nodes();
-        highlight_nodes = nodes.filter((d) => neigh(index, d.index)).nodes();
-
-        // Add
-        highlight_links.forEach(function (d) {
-            highlight_layer.node().appendChild(d.cloneNode())
+        .html(() => {
+            const content = `<strong>Subreddit:</strong> <span>${d.sub}</span>`
+            return content;
         })
 
-        selected_node = this.cloneNode()
-        highlight_layer.node().appendChild(selected_node)
-        highlight_nodes.forEach(function (d) {
-            highlight_layer.node().appendChild(d.cloneNode())
-        })
-        highlight_layer.selectAll('.node').style('fill', 'red')
-        d3.select(selected_node)
-            .on('mouseout', nodeOutFunction)
-            .on('mouseover', nodeOverFunction)
-
-        link_layer.style('opacity', 0.1)
-        node_layer.style('opacity', 0.5)
+    if (clicked_node == null) {
+        setHighlights(d, this)
     }
+
+    selected_node = this.cloneNode()
+    d3.select(selected_node)
+        .attr('id', 'current-node')
+        .style('fill', highlight_node_color_primary)
+    highlight_layer.node().appendChild(selected_node)
 };
 
 function nodeOutFunction() {
     tooltip.style("visibility", "hidden")
-    if (!click_state) {
-        $('#highlight-layer').empty();
-      
-
-        nodes
-            .style("opacity", default_node_opacity)
-            .style("fill", default_node_color)
-        node_layer.style('opacity', 1)
-        link_layer.style('opacity', 1);
+    // tooltip_info
+    if (clicked_node == null) {
+        clearHighlights();
     }
+    highlight_layer.select('#current-node').remove()
+}
+
+
+// Highlighting Functionality
+function setHighlights(d, e) {
+    var index = d3.select(e).datum().index;
+
+    // Filter Existing Nodes
+    highlight_links = links
+        .filter(function (d) {
+            return d.source.index == index || d.target.index == index;
+        }).nodes();
+
+    highlight_nodes = nodes
+        .filter((d) => neigh(index, d.index))
+        .nodes();
+
+    // Insert Elements into Highlight Layer
+    highlight_links.forEach(function (d) {
+        highlight_layer.node().appendChild(d.cloneNode())
+    })
+
+    highlight_nodes.forEach(function (d) {
+        highlight_layer.node().appendChild(d.cloneNode())
+    })
+
+    highlight_layer.selectAll('.node')
+        .style('fill', highlight_node_color_primary)
+
+    link_layer.style('opacity', 0.1)
+    node_layer.style('opacity', 0.5)
+}
+
+function clearHighlights() {
+    $('#highlight-layer').empty();
+    node_layer.style('opacity', 1);
+    link_layer.style('opacity', 1);
 }
 
 tooltip = d3.select("body").append("div")
@@ -349,11 +367,13 @@ tooltip = d3.select("body").append("div")
     .style("visibility", "hidden")
     .text("");
 
-
+// Determine if two nodes are neighbors
 function neigh(a, b) {
     return a == b || adjlist[a + "-" + b];
 }
 
+
+// Drag Behaviour (Not Necessary Currently)
 // drag = simulation => {
 
 //     function dragstarted(d) {
@@ -379,10 +399,11 @@ function neigh(a, b) {
 //         .on("end", dragended);
 // }
 
+
+// Update Graph Elements -> Needs to be implemented
 function updateLinks() {
     console.log("Updating links")
 };
-
 
 function updateNodes(data) {
     console.log('Updating Nodes')
@@ -390,12 +411,9 @@ function updateNodes(data) {
     nodes.data(data, (d) => d.sub)
 }
 
-
-// Animate Nodes
-// Animate Links
-
-
 function drawLinkedTooltips() {
 
 }
+
+// Change primary and secondary colors
 
