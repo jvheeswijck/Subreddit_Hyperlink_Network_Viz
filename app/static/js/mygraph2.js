@@ -1,17 +1,30 @@
 var base_url = `http://${document.domain}:${location.port}`;
 
-// Default Settings
-var default_node_color = "rgb(172, 220, 114)";
-var highlight_node_color_primary = 'red';
-var default_circle_min_radius = 4;
-var default_circle_max_radius = 12;
-var default_node_opacity = 0.8;
-var line_width_max = 8;
-var line_width_min = 0.5;
+// Default Settings //
+// Objects
 var link_limit = 2000;
 var node_limit = 2000;
-var min_line_opac = 0.1;
-var max_line_opac = 0.7;
+
+// Styling
+var default_node_color = "rgb(172, 220, 114)";
+var highlight_node_color_primary = 'red';
+
+var default_circle_min_radius = 2;
+var default_circle_max_radius = 10;
+
+var default_node_opacity = 0.8;
+
+const line_width_max = 2,
+    line_width_min = 0.4;
+
+const min_line_opac = 0.1,
+    max_line_opac = 0.7;
+
+
+var link_highlight_type = 'both'
+// End Settings //
+
+// Set functions //
 
 // Margins
 var margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -38,16 +51,18 @@ var layers = svg.selectAll('g')
 
 // Pan and Zoom
 var transform = d3.zoomIdentity.translate(100, 50).scale(0.8)
-
 var zoom = d3.zoom()
     .scaleExtent([0.2, 10])
     .on("zoom", function () {
         svg
-        .attr('transform', d3.event.transform)
+            .attr('transform', d3.event.transform)
     });
 d3.select('#svg-div').call(zoom);
 
 // Force Graph
+var simulation = null;
+
+
 // var simulation = d3.forceSimulation()
 //     // .force("charge", d3.forceManyBody().strength(-30000))
 //     .force("link", d3.forceLink().id(function (d) { return d.sub; }).distance(40))
@@ -56,15 +71,22 @@ d3.select('#svg-div').call(zoom);
 //     .force('collision', d3.forceCollide().radius(4))
 //     .on("tick", ticked);
 
-var links = svg
+var link_layer = svg
     .append('g')
-    .attr('id', 'links')
-    .selectAll(".link");
+    .attr('class', 'layer')
+    .attr('id', 'link-layer');
 
-var nodes = svg
+var node_layer = svg
     .append('g')
-    .attr('id', 'nodes')
-    .selectAll(".node");
+    .attr('class', 'layer')
+    .attr('id', 'node-layer');
+
+var highlight_layer = svg
+    .append('g')
+    .attr('class', 'layer')
+    .attr('id', 'highlight-layer')
+    .attr('id', 'high');
+
 
 var adjlist = [];
 
@@ -87,10 +109,10 @@ d3.csv("/nodes").then(function (data_node) {
             node.index = index;
             index++;
             Object.defineProperty(node, 'total_in', {
-                get: function() { return this.in_pos +  this.in_neg}
-              });
+                get: function () { return this.in_pos + this.in_neg }
+            });
             Object.defineProperty(node, 'total_out', {
-                get: function () { return this.out_pos + this.out_neg}
+                get: function () { return this.out_pos + this.out_neg }
             })
             nodeById.set(node.sub, node);
         });
@@ -99,21 +121,21 @@ d3.csv("/nodes").then(function (data_node) {
             link.target = nodeById.get(link.target);
             link.n = Number(link.n)
 
-            if (link.sentiment == "1"){
+            if (link.sentiment == "1") {
                 link.source.out_pos += link.n
             } else {
                 link.source.out_neg += link.n
             }
             node = nodeById.get(link.target);
-            if (link.sentiment == "1"){
+            if (link.sentiment == "1") {
                 link.target.in_pos += link.n
             } else {
                 link.target.in_neg += link.n
             }
         });
 
-        // Calculate Node Stats and Active Nodes
 
+        // Set Domain Scales
         xScale = d3.scaleLinear()
             .domain(d3.extent(node_data, (d) => Number(d.x)))
             .range([0, width])
@@ -126,7 +148,7 @@ d3.csv("/nodes").then(function (data_node) {
         lineScale.domain(d3.extent(link_data, (d) => Number(d.n)))
         opacScale.domain(d3.extent(link_data, (d) => Number(d.n)))
 
-        nodes = nodes
+        nodes = node_layer.selectAll('.node')
             .data(node_data)
             .enter()
             .append("circle")
@@ -136,10 +158,20 @@ d3.csv("/nodes").then(function (data_node) {
             .style("r", (d) => nodeScale(d.total_out))
             .style("fill", default_node_color)
             .style("opacity", default_node_opacity)
-            // .attr('display', 'none')
             .on('mouseover', nodeOverFunction)
             .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
             .on('mouseout', nodeOutFunction);
+
+
+
+        // simulation = d3.forceSimulation(nodes)
+        //     .velocityDecay(0.2)
+        //     .force('charge', d3.forceManyBody().strength(5))
+        //     .force('center', d3.forceCenter(width / 2, height / 2))
+        //     .force('collision', d3.forceCollide().radius(function (d) {
+        //         return nodeScale(d.total_out)
+        //     }))
+        //     .on('tick', ticked);
 
         // console.log('This is animating')
         // nodes.transition()
@@ -148,20 +180,32 @@ d3.csv("/nodes").then(function (data_node) {
         //     .attr('opacity', 0.8)
         //     .attr('r', default_circle_min_radius)
 
-        links = links
+        links = link_layer.selectAll('.link')
             .data(link_data)
             .enter()
             .append("line")
             .style("stroke", "#aaa")
             // .attr("stroke-width", (d) => lineScale(d.n))
-            .style("stroke-width", 1)
+            .style("stroke-width", 0.4)
             .style('opacity', 1)
-            .style('stroke-dasharray', (d) => (d.sentiment == "1" ? null : null))
+            // .style('stroke-dasharray', (d) => (d.sentiment == "1" ? null : null))
             .attr("x1", (d) => xScale(d.source.x))
             .attr("y1", (d) => yScale(d.source.y))
             .attr("x2", (d) => xScale(d.target.x))
             .attr("y2", (d) => yScale(d.target.y));
         // .attr('display', 'none');
+
+        // links.attr("d", function (d) {
+        //     var dx = xScale(d.target.x) - xScale(d.source.x),
+        //         dy = yScale(d.target.y) - yScale(d.source.y),
+        //         dr = Math.sqrt(dx * dx + dy * dy);
+        //     return "M" + xScale(d.source.x) + "," + yScale(d.source.y) + "A" + dr + "," + dr + " 0 0,1 "
+        //         + xScale(d.target.x) + "," + yScale(d.target.y);
+        // });
+
+        // links.style('fill', 'none')
+        // .style('stroke', '#aaa')
+        // .style("stroke-width", 0.5);
 
         link_data.forEach(function (d) {
             adjlist[d.source.index + "-" + d.target.index] = true;
@@ -169,6 +213,7 @@ d3.csv("/nodes").then(function (data_node) {
         });
 
         d3.select('#svg-div').attr('transform', transform);
+        svg.attr('transform', transform);
         // d3.zoomIdentity = transform;
     });
 })
@@ -182,7 +227,12 @@ function filterLinks() {
 }
 
 function ticked() {
-    simulation.stop();
+    nodes.attr('cx', function (d) {
+        return xScale(d.x)
+    })
+        .attr('cy', function (d) {
+            return yScale(d.y)
+        })
     // link.attr("x1", function (d) { return d.source.x; })
     //     .attr("y1", function (d) { return d.source.y; })
     //     .attr("x2", function (d) { return d.target.x; })
@@ -201,17 +251,19 @@ function nodeOverFunction(d) {
             return content;
         })
 
-    d3.select(this)
-        .style('opacity', 1)
-        .style('fill', 'red')
+    highlight_layer = d3.select(this);
+    // .style('opacity', 1)
+    // .style('fill', 'red')
 
     var index = d3.select(d3.event.target).datum().index;
     nodes.style("fill", function (o) {
         return neigh(index, o.index) ? highlight_node_color_primary : default_node_color;
     });
-    links.style("opacity", function (o) {
-        return o.source.index == index || o.target.index == index ? 1 : 0.1;
-    });
+    links.filter()
+    // link_layer.style("opacity", function (o) {
+    //     return o.source.index == index || o.target.index == index ? 1 : 0.1;
+    // });
+    link_layer.style('opacity', 0.1)
 
 };
 
@@ -232,7 +284,7 @@ function nodeOutFunction() {
     nodes
         .style("opacity", default_node_opacity)
         .style("fill", default_node_color)
-    links.style('opacity', (d) => 1);
+    link_layer.style('opacity', (d) => 1);
 }
 
 tooltip = d3.select("body").append("div")
