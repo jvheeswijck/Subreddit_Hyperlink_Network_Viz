@@ -9,23 +9,52 @@
   <div class="collapse-spot-left">
     <button type="button" id="sidebarCollapse" class="btn btn-info">
       <i class="fas fa-align-left"></i>
-      <span>></span>
+      <span>&gt;</span>
     </button>
   </div>
 
-  <!-- <button class="button" id="posSentButton">Positive</button>
-  <button class="button" id="negSentButton">Negative</button> -->
+  <div class='row d-flex justify-content-center'>
+    <div class="content-header d-flex justify-content-center" id='data-filter-header'>
+      <!-- Filter Title -->
+      <h4 class="m-0">Data Filters</h4>
+    </div>
+  </div>
 
-  <div class="dropdown">
-    <button class="dropbtn">Sentiment</button>
-    <div class="dropdown-content">
-      <button class="button" id="posSentButton">Positive</button>
+  <div class='row d-flex justify-content-center sidebar-row'>
+    <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Sentiment </span>
+    <div id='sentiment-slider'>
+      <button class="buttonn" id="posSentButton">Positive</button>
       <button class="button" id="negSentButton">Negative</button>
     </div>
   </div>
 
+  <div class='row d-flex justify-content-center sidebar-row hidden'>
+    <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Sentiment </span>
+    <div id='in-out-slider'>
 
+    </div>
+  </div>
+  <div class='row d-flex justify-content-center sidebar-row hidden'>
+    <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Sentiment </span>
+    <div id='other-filter'>
 
+    </div>
+  </div>
+  <!-- </br> -->
+  <!-- <div class="dropdown"> -->
+  <!-- <button class="dropbtn">Sentiment</button> -->
+  <!-- <div class="dropdown-content"> -->
+  <!-- <button class="button" id="posSentButton">Positive</button>
+      <button class="button" id="negSentButton">Negative</button> -->
+  <!-- </div> -->
+  <!-- </div> -->
+
+  <div class='row d-flex justify-content-center'>
+    <div class="content-header d-flex justify-content-center" id='info-behaviour-header'>
+      <!-- Filter Title -->
+      <h4 class="m-0">Info Display</h4>
+    </div>
+  </div>
 </div>
 
 <!-- Middle Content -->
@@ -33,7 +62,7 @@
 
   <!-- Date Ranger Slider -->
   <!-- <div class='svg-tooltip' id='node-info'></div> -->
-  <div class="date-slider-wrapper">
+  <div class="date-slider-wrapper d-flex justify-content-center">
     <div id="range-volume-scent"></div>
     <div id="range-slider"></div>
   </div>
@@ -46,7 +75,7 @@
   <div class="collapse-spot-right">
     <button type="button" id="rightbarCollapse" class="btn btn-info">
       <i class="fas fa-align-right"></i>
-      <span><</span>
+      <span>&lt;</span>
     </button>
   </div>
 </div>
