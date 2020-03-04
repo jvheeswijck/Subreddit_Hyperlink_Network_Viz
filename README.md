@@ -2,7 +2,10 @@
 ## What we did after the meeting of 27-02:
 - Encoding in size of the node
 - Adding links between nodes
-- Filtering on sentiment is implemented
+- Highlighting Behaviour
+- Click selection behaviour
+- Performance enhancements
+- Basic filtering on sentiment -> May need to adjust filtering logic for multiple filtering of various attributes
 
 ## To-Do
 __updateNodes Function__
