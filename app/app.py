@@ -15,7 +15,7 @@ app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1
 socketio = SocketIO(app)
 
-link_limit = 5000
+# link_limit = 100_000
 
 def split_sentiment(df):
     mask = df.sentiment == 1
@@ -67,6 +67,8 @@ def prepare_csv(df):
     csv_obj.close()
     return csv_ready
 
+###### ROUTES ######
+
 @app.route("/", methods=['POST', 'GET'])
 def home():
     first_link = df_all.timestamp.min().ctime()
@@ -86,24 +88,25 @@ def serve_data():
     if request.args.get('g') == 'tag_graph':
         return jsonify(tag_graph['root'])
 
-@socketio.on('date_change')
-def on_date_update(dates):
-    df_current = df_all
-    emit('update_graph', {'one':'msg'})
+# @socketio.on('date_change')
+# def on_date_update(dates):
+#     df_current = df_all
+#     emit('update_graph', {'one':'msg'})
     
-@socketio.on('label_change')
-def on_label_update(dates):
-    df_current = df_all
-    emit('update_graph', {'one':'msg'})
+# @socketio.on('label_change')
+# def on_label_update(dates):
+#     df_current = df_all
+#     emit('update_graph', {'one':'msg'})
 
-@app.route("/jsondata",methods=["GET","POST"])
-def returnjson():
-    return send_file("../data/sourcetarget.json")
+# @app.route("/jsondata",methods=["GET","POST"])
+# def returnjson():
+#     return send_file("../data/sourcetarget.json")
 
 @app.route("/nodes",methods=["GET","POST"])
 def get_nodes():
     links = compute_links(df_all)
-    links_trunc = links[:link_limit]
+    # links_trunc = links[:link_limit]
+    links_trunc = links
     sub_set = set()
     sub_set.update(links_trunc.source)
     sub_set.update(links_trunc.target)
@@ -113,7 +116,7 @@ def get_nodes():
 @app.route("/links",methods=["GET","POST"])
 def get_links():
     links = compute_links(df_all)
-    return prepare_csv(links.iloc[:link_limit])
+    return prepare_csv(links.iloc[:])
 
 
 
@@ -124,7 +127,7 @@ def get_sent_nodes():
     elif request.args.get('s') == 'neg':
         links = compute_links(neg_rows)
 
-    links_trunc = links[:link_limit]
+    links_trunc = links[:]
     sub_set = set()
     sub_set.update(links_trunc.source)
     sub_set.update(links_trunc.target)
@@ -137,7 +140,7 @@ def get_sent_links():
         links = compute_links(pos_rows)
     elif request.args.get('s') == 'neg':
         links = compute_links(neg_rows)
-    return prepare_csv(links.iloc[:link_limit])
+    return prepare_csv(links.iloc[:])
 
 
 def filter_data():

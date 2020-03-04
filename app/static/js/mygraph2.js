@@ -44,7 +44,7 @@ var margin = { top: 0, right: 0, bottom: 0, left: 0 },
 var xScale = null;
 var yScale = null;
 var nodeScale = d3.scaleSqrt().range([default_circle_min_radius, default_circle_max_radius]);
-var lineScale = d3.scaleLog().range([line_width_min, line_width_max]);
+var lineScale = d3.scalePow().range([line_width_min, line_width_max]);
 var opacScale = d3.scaleLog().range([min_line_opac, max_line_opac]);
 
 var svg = d3.select('#svg-div')
@@ -106,10 +106,17 @@ var highlight_layer = svg
 
 
 var adjlist = [];
-let link_data = null;
-let node_data = null;
+var link_master = null;
+var node_master = null;
+var link_work = null;
+var node_work = null;
 var nodeById = d3.map();
 
+
+var t0 = null,
+    t1 = null,
+    t2 = null,
+    t3 = null;
 
 // Load and Draw Data
 function loadAndDraw(nodeURL, linkURL) {
@@ -117,11 +124,11 @@ function loadAndDraw(nodeURL, linkURL) {
     d3.csv(nodeURL).then(function (data_node) {
         d3.csv(linkURL).then(function (data_link) {
             let index = 0;
-            link_data = data_link.slice(0, link_limit); // Limit number of links
-            node_data = data_node;
+            link_master = data_link // Limit number of links
+            node_master = data_node;
 
             // Calculate relevant node information
-            node_data.forEach(function (node) {
+            node_master.forEach(function (node) {
                 node.in_pos = 0;
                 node.out_pos = 0;
                 node.in_neg = 0;
@@ -140,7 +147,7 @@ function loadAndDraw(nodeURL, linkURL) {
             });
 
             // Build node-link relationships
-            link_data.forEach(function (link) {
+            link_master.forEach(function (link) {
                 link.source = nodeById.get(link.source);
                 link.target = nodeById.get(link.target);
                 link.n = Number(link.n)
@@ -159,24 +166,25 @@ function loadAndDraw(nodeURL, linkURL) {
                 link.source.adj_src.push(link);
                 link.target.adj_trgt.push(link);
             });
-
+            node_work = node_master
+            link_work = link_master.slice(0, link_limit)
 
             // Set Domain Scales
             xScale = d3.scaleLinear()
-                .domain(d3.extent(node_data, (d) => Number(d.x)))
+                .domain(d3.extent(node_work, (d) => Number(d.x)))
                 .range([0, width])
 
             yScale = d3.scaleLinear()
-                .domain(d3.extent(node_data, (d) => Number(d.y)))
+                .domain(d3.extent(node_work, (d) => Number(d.y)))
                 .range([0, height])
 
-            nodeScale.domain(d3.extent(node_data, (d) => Number(d.total_out)))
-            lineScale.domain(d3.extent(link_data, (d) => Number(d.n)))
-            opacScale.domain(d3.extent(link_data, (d) => Number(d.n)))
+            nodeScale.domain(d3.extent(node_master, (d) => Number(d.total_out)))
+            lineScale.domain(d3.extent(link_master, (d) => Number(d.n)))
+            opacScale.domain(d3.extent(link_master, (d) => Number(d.n)))
 
             // Draw Nodes
             nodes = node_layer.selectAll('.node')
-                .data(node_data)
+                .data(node_work)
                 .enter()
                 .append("circle")
                 .attr("cx", (d) => xScale(d.x))
@@ -188,20 +196,16 @@ function loadAndDraw(nodeURL, linkURL) {
                 .on('mouseover', nodeOverFunction)
                 .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
                 .on('mouseout', nodeOutFunction)
-                .on('click', function (d) {
+                .on('click', function (d) { // Select Behaviour
                     if (clicked_node == null) {
                         clicked_node = this;
-                        // copy_node = this.cloneNode()
-                        // highlight_layer.appendChild()
                     } else {
                         clearHighlights()
                         clicked_node = this;
                         setHighlights(d, this)
-                        // nodeOutFunction(d).bind(this);
-                        // clicked_node = this;
                     }
                 })
-                .sort(function(a,b) {
+                .sort(function (a, b) { // Draw smaller nodes above
                     return b.total_out - a.total_out
                 })
 
@@ -209,10 +213,7 @@ function loadAndDraw(nodeURL, linkURL) {
             nodes.transition()
                 .duration(300)
                 .delay((d, i) => (i % 10) * 100)
-                // .attr("opacity", 0.8)
-                // .attr('r', )
                 .attr("r", (d) => nodeScale(d.total_out));
-
 
             // simulation = d3.forceSimulation(nodes)
             //     .velocityDecay(0.2)
@@ -232,11 +233,11 @@ function loadAndDraw(nodeURL, linkURL) {
 
             // Draw Links
             links = link_layer.selectAll('.link')
-                .data(link_data)
+                .data(link_work, keyLinks)
                 .enter()
                 .append("line")
+                .attr('class', 'link')
                 .style("stroke", "#aaa")
-                // .attr("stroke-width", (d) => lineScale(d.n))
                 .style("stroke-width", (d) => lineScale(d.n))
                 .style('opacity', 1)
                 .style('visibility', 'hidden')
@@ -262,14 +263,13 @@ function loadAndDraw(nodeURL, linkURL) {
             //         + xScale(d.target.x) + "," + yScale(d.target.y);
             // });
 
-            // links.style('fill', 'none')
-            // .style('stroke', '#aaa')
-            // .style("stroke-width", 0.5);
+            // Do we want to highlight nodes with low value connections?
+            setAdj();
+            // link_work.forEach(function (d) {
+            //     adjlist[d.source.index + "-" + d.target.index] = true;
+            //     adjlist[d.target.index + "-" + d.source.index] = true;
+            // });
 
-            link_data.forEach(function (d) {
-                adjlist[d.source.index + "-" + d.target.index] = true;
-                adjlist[d.target.index + "-" + d.source.index] = true;
-            });
 
             // d3.select('#svg-div').attr('transform', transform);
             // svg.attr('transform', transform);
@@ -278,10 +278,21 @@ function loadAndDraw(nodeURL, linkURL) {
     })
 
 }
+function setAdj(link_ary) {
+    adjlist = []
+    link_ary.forEach(function (d) {
+        adjlist[d.source.index + "-" + d.target.index] = true;
+        adjlist[d.target.index + "-" + d.source.index] = true;
+    });
+}
 
 // Initialize graph
 loadAndDraw('/nodes', '/links');
 
+
+function keyLinks(d) {
+    return `${d.source.sub}-${d.target.sub}`
+}
 
 function filterNodes() {
 
@@ -364,6 +375,9 @@ function setHighlights(d, e) {
     highlight_layer.selectAll('.node')
         .style('fill', highlight_node_color_primary)
 
+
+    // highlight_layer.selectAll('.link').data(link_work, keyLinks).style('stroke-width', (d) => lineScale(d.n) + 1)
+
     link_layer.style('opacity', 0.1)
     node_layer.style('opacity', 0.5)
 }
@@ -414,7 +428,7 @@ function neigh(a, b) {
 
 
 // Update Graph Elements -> Needs to be implemented
-function updateLinks(s, linkURL) {
+function updateLinks(link_data) {
 
 }
 
@@ -424,24 +438,107 @@ function updateNodes(s, nodeURL) {
 }
 
 
+function updateGraph(node_data, link_data) {
+    // Need to update the data bound to nodes
+
+    // Node Update
+
+
+
+    // Link Update
+    links = link_layer
+        .selectAll('.link')
+        .data(link_data, keyLinks) // Bind new data
+
+    links.exit() // Remove old data
+        .transition()
+        .duration(0)
+        .delay((d, i) => (i % 10) * 50)
+        .remove()
+
+    links.transition()
+        .delay(500)
+        .duration(500)
+        .style("stroke-width", (d) => lineScale(d.n))
+
+    links
+        .enter() // Append new lines
+        .append("line")
+        .attr('class', 'link')
+        .style("stroke", "#aaa")
+        .style('visibility', 'hidden')
+        .style("stroke-width", (d) => lineScale(d.n))
+        .attr("x1", (d) => xScale(d.source.x))
+        .attr("y1", (d) => yScale(d.source.y))
+        .attr("x2", (d) => xScale(d.target.x))
+        .attr("y2", (d) => yScale(d.target.y))
+        .merge(links) // Merge with existing lines and update data
+        .transition()
+        .delay((d, i) => (i % 10) * 50 + 500)
+        .duration(1)
+        .style('visibility', 'visible')
+
+    // links
+    //     .transition()
+    //     .delay((d, i) => (i % 10) * 100 + 1000)
+    //     .duration(0)
+    //     .style('visibility', 'visible');
+
+    // links
+    //     .transition()
+    //     .delay((d, i) => (i % 10) * 100 + 1000)
+    //     .duration(200)
+    //     .style("stroke-width", (d) => lineScale(d.n))
+
+
+}
+
+test_links = link_master.filter(function (d) {
+    return d.source.sub == 'iama'
+})
+// filters = [{'sentiment': "1"}]
+
+
+// May be adjusted to new filter workflow
 function updateSentiment(s) {
-    nodeURL = "/sentiment_nodes?s=" + s
-    linkURL = "/sentiment_links?s=" + s
+    if (s == "pos") {
+        link_current = link_master.filter(function (d) {
+            return d.sentiment == "1"
+        })
+    } else if (s == "neg") {
+        link_current = link_master.filter(function (d) {
+            return d.sentiment == "-1"
+        })
+    } else {
 
-    d3.selectAll('#link-layer').remove();
-    d3.selectAll('.node').remove();
-    
-    loadAndDraw(nodeURL, linkURL)
+    }
+    console.log('Done filtering')
 
-    link_layer = svg
-        .append('g')
-        .attr('class', 'layer')
-        .attr('id', 'link-layer');
+    link_current = link_current.sort(function (a, b) {
+        return b.n - a.n
+    })
+    console.log('updating graph')
+    link_current_trunc = link_current.slice(0, link_limit)
+    setAdj(link_current_trunc)
+    updateGraph(null, link_current_trunc)
 
-    node_layer = svg
-        .append('g')
-        .attr('class', 'layer')
-        .attr('id', 'node-layer');
+    // nodeURL = "/sentiment_nodes?s=" + s
+    // linkURL = "/sentiment_links?s=" + s
+
+    // d3.selectAll('#link-layer').remove();
+    // d3.selectAll('.node').remove();
+
+    // loadAndDraw(nodeURL, linkURL)
+
+    // link_layer = svg
+    //     .append('g')
+    //     .attr('class', 'layer')
+    //     .attr('id', 'link-layer');
+
+    // node_layer = svg
+    //     .append('g')
+    //     .attr('class', 'layer')
+    //     .attr('id', 'node-layer');
 
 }
 
@@ -452,3 +549,24 @@ function drawLinkedTooltips() {
 
 // Change primary and secondary colors
 
+// Performance testing
+function test_performance() {
+    let t0 = null;
+    let t1 = null;
+    let t2 = null;
+    let t3 = null
+    t0 = performance.now()
+    nodeURL = "/sentiment_nodes?s=" + "pos"
+    linkURL = "/sentiment_links?s=" + "pos"
+    d3.csv(nodeURL).then(function (data_node) {
+        d3.csv(linkURL).then(function (data_link) {
+            t1 = performance.now()
+            t2 = performance.now()
+            link_master.filter(function (d) {
+                return d.sentiment = "1"
+            })
+            t3 = performance.now()
+            console.log([t3 - t2, t1 - t0])
+        })
+    })
+}
