@@ -36,6 +36,8 @@ Can have two modes: one - non node selected view, two: node selected view
 (Node Highlighted vs Non-Highlighted Views)
 
 __Data Filters and Toggles on the Left Sidebar__
+In/Out Links for Subreddit View
+Perhaps toggle highlight behaviour (only in links, only out links, both)
 
 ## Meeting Notes
 ### 27-02-2020
@@ -47,6 +49,8 @@ __Data Filters and Toggles on the Left Sidebar__
  - Add custom labelling such that:
     - Interesting clusters can be shown
     - Encoding in the size of circle and color
- -Try to implement something like a sunburst: if circular does not fit in the page idea, try semi-spherical, so that as the filtering criteria in the sun burst increases, the data decreases and the page is not too cluttered. 
+ - Try to implement something like a sunburst: if circular does not fit in the page idea, try semi-spherical, so that as the filtering criteria in the sun burst increases, the data decreases and the page is not too cluttered. 
 
 ### 20-02-2020
+   - Try to find some labeling for the subreddits, or catagorization.
+   
