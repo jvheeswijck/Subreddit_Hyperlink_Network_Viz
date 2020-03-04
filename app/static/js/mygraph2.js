@@ -110,169 +110,178 @@ let link_data = null;
 let node_data = null;
 var nodeById = d3.map();
 
+
 // Load and Draw Data
-d3.csv("/nodes").then(function (data_node) {
-    d3.csv('/links').then(function (data_link) {
-        let index = 0;
-        link_data = data_link.slice(0, link_limit); // Limit number of links
-        node_data = data_node;
+function loadAndDraw(nodeURL, linkURL) {
 
-        // Calculate relevant node information
-        node_data.forEach(function (node) {
-            node.in_pos = 0;
-            node.out_pos = 0;
-            node.in_neg = 0;
-            node.out_neg = 0;
-            node.adj_src = [];
-            node.adj_trgt = [];
-            node.index = index;
-            index++;
-            Object.defineProperty(node, 'total_in', {
-                get: function () { return this.in_pos + this.in_neg }
+    d3.csv(nodeURL).then(function (data_node) {
+        d3.csv(linkURL).then(function (data_link) {
+            let index = 0;
+            link_data = data_link.slice(0, link_limit); // Limit number of links
+            node_data = data_node;
+
+            // Calculate relevant node information
+            node_data.forEach(function (node) {
+                node.in_pos = 0;
+                node.out_pos = 0;
+                node.in_neg = 0;
+                node.out_neg = 0;
+                node.adj_src = [];
+                node.adj_trgt = [];
+                node.index = index;
+                index++;
+                Object.defineProperty(node, 'total_in', {
+                    get: function () { return this.in_pos + this.in_neg }
+                });
+                Object.defineProperty(node, 'total_out', {
+                    get: function () { return this.out_pos + this.out_neg }
+                })
+                nodeById.set(node.sub, node);
             });
-            Object.defineProperty(node, 'total_out', {
-                get: function () { return this.out_pos + this.out_neg }
-            })
-            nodeById.set(node.sub, node);
-        });
 
-        // Build node-link relationships
-        link_data.forEach(function (link) {
-            link.source = nodeById.get(link.source);
-            link.target = nodeById.get(link.target);
-            link.n = Number(link.n)
+            // Build node-link relationships
+            link_data.forEach(function (link) {
+                link.source = nodeById.get(link.source);
+                link.target = nodeById.get(link.target);
+                link.n = Number(link.n)
 
-            if (link.sentiment == "1") {
-                link.source.out_pos += link.n
-            } else {
-                link.source.out_neg += link.n
-            }
-            node = nodeById.get(link.target);
-            if (link.sentiment == "1") {
-                link.target.in_pos += link.n
-            } else {
-                link.target.in_neg += link.n
-            }
-            link.source.adj_src.push(link);
-            link.target.adj_trgt.push(link);
-        });
-
-
-        // Set Domain Scales
-        xScale = d3.scaleLinear()
-            .domain(d3.extent(node_data, (d) => Number(d.x)))
-            .range([0, width])
-
-        yScale = d3.scaleLinear()
-            .domain(d3.extent(node_data, (d) => Number(d.y)))
-            .range([0, height])
-
-        nodeScale.domain(d3.extent(node_data, (d) => Number(d.total_out)))
-        lineScale.domain(d3.extent(link_data, (d) => Number(d.n)))
-        opacScale.domain(d3.extent(link_data, (d) => Number(d.n)))
-
-        // Draw Nodes
-        nodes = node_layer.selectAll('.node')
-            .data(node_data)
-            .enter()
-            .append("circle")
-            .attr("cx", (d) => xScale(d.x))
-            .attr("cy", (d) => yScale(d.y))
-            .attr("class", "node")
-            .attr("r", 0)
-            .style("fill", default_node_color)
-            .style("opacity", default_node_opacity)
-            .on('mouseover', nodeOverFunction)
-            .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
-            .on('mouseout', nodeOutFunction)
-            .on('click', function (d) {
-                if (clicked_node == null) {
-                    clicked_node = this;
-                    // copy_node = this.cloneNode()
-                    // highlight_layer.appendChild()
+                if (link.sentiment == "1") {
+                    link.source.out_pos += link.n
                 } else {
-                    clearHighlights()
-                    clicked_node = this;
-                    setHighlights(d, this)
-                    // nodeOutFunction(d).bind(this);
-                    // clicked_node = this;
+                    link.source.out_neg += link.n
                 }
-            })
-            .sort(function(a,b) {
-                return b.total_out - a.total_out
-            })
-
-        // Animate Nodes
-        nodes.transition()
-            .duration(300)
-            .delay((d, i) => (i % 10) * 100)
-            // .attr("opacity", 0.8)
-            // .attr('r', )
-            .attr("r", (d) => nodeScale(d.total_out));
+                node = nodeById.get(link.target);
+                if (link.sentiment == "1") {
+                    link.target.in_pos += link.n
+                } else {
+                    link.target.in_neg += link.n
+                }
+                link.source.adj_src.push(link);
+                link.target.adj_trgt.push(link);
+            });
 
 
-        // simulation = d3.forceSimulation(nodes)
-        //     .velocityDecay(0.2)
-        //     .force('charge', d3.forceManyBody().strength(5))
-        //     .force('center', d3.forceCenter(width / 2, height / 2))
-        //     .force('collision', d3.forceCollide().radius(function (d) {
-        //         return nodeScale(d.total_out)
-        //     }))
-        //     .on('tick', ticked);
+            // Set Domain Scales
+            xScale = d3.scaleLinear()
+                .domain(d3.extent(node_data, (d) => Number(d.x)))
+                .range([0, width])
 
-        // console.log('This is animating')
-        // nodes.transition()
-        //     .duration(200)
-        //     .delay((d, i) => (i % 10) * 100)
-        //     .attr('opacity', 0.8)
-        //     .attr('r', default_circle_min_radius)
+            yScale = d3.scaleLinear()
+                .domain(d3.extent(node_data, (d) => Number(d.y)))
+                .range([0, height])
 
-        // Draw Links
-        links = link_layer.selectAll('.link')
-            .data(link_data)
-            .enter()
-            .append("line")
-            .style("stroke", "#aaa")
-            // .attr("stroke-width", (d) => lineScale(d.n))
-            .style("stroke-width", (d) => lineScale(d.n))
-            .style('opacity', 1)
-            .style('visibility', 'hidden')
-            // .style('stroke-dasharray', "4")
-            // .style('stroke-dasharray', (d) => (d.sentiment == "1" ? null : null))
-            .attr("x1", (d) => xScale(d.source.x))
-            .attr("y1", (d) => yScale(d.source.y))
-            .attr("x2", (d) => xScale(d.target.x))
-            .attr("y2", (d) => yScale(d.target.y));
+            nodeScale.domain(d3.extent(node_data, (d) => Number(d.total_out)))
+            lineScale.domain(d3.extent(link_data, (d) => Number(d.n)))
+            opacScale.domain(d3.extent(link_data, (d) => Number(d.n)))
 
-        // Animate Links
-        links
-            .transition()
-            .delay((d, i) => (i % 10) * 100 + 1000)
-            .duration(0)
-            .style('visibility', 'visible');
+            // Draw Nodes
+            nodes = node_layer.selectAll('.node')
+                .data(node_data)
+                .enter()
+                .append("circle")
+                .attr("cx", (d) => xScale(d.x))
+                .attr("cy", (d) => yScale(d.y))
+                .attr("class", "node")
+                .attr("r", 0)
+                .style("fill", default_node_color)
+                .style("opacity", default_node_opacity)
+                .on('mouseover', nodeOverFunction)
+                .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+                .on('mouseout', nodeOutFunction)
+                .on('click', function (d) {
+                    if (clicked_node == null) {
+                        clicked_node = this;
+                        // copy_node = this.cloneNode()
+                        // highlight_layer.appendChild()
+                    } else {
+                        clearHighlights()
+                        clicked_node = this;
+                        setHighlights(d, this)
+                        // nodeOutFunction(d).bind(this);
+                        // clicked_node = this;
+                    }
+                })
+                .sort(function(a,b) {
+                    return b.total_out - a.total_out
+                })
 
-        // links.attr("d", function (d) {
-        //     var dx = xScale(d.target.x) - xScale(d.source.x),
-        //         dy = yScale(d.target.y) - yScale(d.source.y),
-        //         dr = Math.sqrt(dx * dx + dy * dy);
-        //     return "M" + xScale(d.source.x) + "," + yScale(d.source.y) + "A" + dr + "," + dr + " 0 0,1 "
-        //         + xScale(d.target.x) + "," + yScale(d.target.y);
-        // });
+            // Animate Nodes
+            nodes.transition()
+                .duration(300)
+                .delay((d, i) => (i % 10) * 100)
+                // .attr("opacity", 0.8)
+                // .attr('r', )
+                .attr("r", (d) => nodeScale(d.total_out));
 
-        // links.style('fill', 'none')
-        // .style('stroke', '#aaa')
-        // .style("stroke-width", 0.5);
 
-        link_data.forEach(function (d) {
-            adjlist[d.source.index + "-" + d.target.index] = true;
-            adjlist[d.target.index + "-" + d.source.index] = true;
+            // simulation = d3.forceSimulation(nodes)
+            //     .velocityDecay(0.2)
+            //     .force('charge', d3.forceManyBody().strength(5))
+            //     .force('center', d3.forceCenter(width / 2, height / 2))
+            //     .force('collision', d3.forceCollide().radius(function (d) {
+            //         return nodeScale(d.total_out)
+            //     }))
+            //     .on('tick', ticked);
+
+            // console.log('This is animating')
+            // nodes.transition()
+            //     .duration(200)
+            //     .delay((d, i) => (i % 10) * 100)
+            //     .attr('opacity', 0.8)
+            //     .attr('r', default_circle_min_radius)
+
+            // Draw Links
+            links = link_layer.selectAll('.link')
+                .data(link_data)
+                .enter()
+                .append("line")
+                .style("stroke", "#aaa")
+                // .attr("stroke-width", (d) => lineScale(d.n))
+                .style("stroke-width", (d) => lineScale(d.n))
+                .style('opacity', 1)
+                .style('visibility', 'hidden')
+                // .style('stroke-dasharray', "4")
+                // .style('stroke-dasharray', (d) => (d.sentiment == "1" ? null : null))
+                .attr("x1", (d) => xScale(d.source.x))
+                .attr("y1", (d) => yScale(d.source.y))
+                .attr("x2", (d) => xScale(d.target.x))
+                .attr("y2", (d) => yScale(d.target.y));
+
+            // Animate Links
+            links
+                .transition()
+                .delay((d, i) => (i % 10) * 100 + 1000)
+                .duration(0)
+                .style('visibility', 'visible');
+
+            // links.attr("d", function (d) {
+            //     var dx = xScale(d.target.x) - xScale(d.source.x),
+            //         dy = yScale(d.target.y) - yScale(d.source.y),
+            //         dr = Math.sqrt(dx * dx + dy * dy);
+            //     return "M" + xScale(d.source.x) + "," + yScale(d.source.y) + "A" + dr + "," + dr + " 0 0,1 "
+            //         + xScale(d.target.x) + "," + yScale(d.target.y);
+            // });
+
+            // links.style('fill', 'none')
+            // .style('stroke', '#aaa')
+            // .style("stroke-width", 0.5);
+
+            link_data.forEach(function (d) {
+                adjlist[d.source.index + "-" + d.target.index] = true;
+                adjlist[d.target.index + "-" + d.source.index] = true;
+            });
+
+            // d3.select('#svg-div').attr('transform', transform);
+            // svg.attr('transform', transform);
+            // d3.zoomIdentity = transform;
         });
+    })
 
-        // d3.select('#svg-div').attr('transform', transform);
-        // svg.attr('transform', transform);
-        // d3.zoomIdentity = transform;
-    });
-})
+}
+
+// Initialize graph
+loadAndDraw('/nodes', '/links');
+
 
 function filterNodes() {
 
@@ -405,15 +414,37 @@ function neigh(a, b) {
 
 
 // Update Graph Elements -> Needs to be implemented
-function updateLinks() {
-    console.log("Updating links")
-};
+function updateLinks(s, linkURL) {
 
-function updateNodes(data) {
-    console.log('Updating Nodes')
-    nodes = d3.selectAll('.nodes')
-    nodes.data(data, (d) => d.sub)
 }
+
+function updateNodes(s, nodeURL) {
+
+
+}
+
+
+function updateSentiment(s) {
+    nodeURL = "/sentiment_nodes?s=" + s
+    linkURL = "/sentiment_links?s=" + s
+
+    d3.selectAll('#link-layer').remove();
+    d3.selectAll('.node').remove();
+    
+    loadAndDraw(nodeURL, linkURL)
+
+    link_layer = svg
+        .append('g')
+        .attr('class', 'layer')
+        .attr('id', 'link-layer');
+
+    node_layer = svg
+        .append('g')
+        .attr('class', 'layer')
+        .attr('id', 'node-layer');
+
+}
+
 
 function drawLinkedTooltips() {
 

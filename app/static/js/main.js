@@ -6,6 +6,16 @@ base_url = `http://${document.domain}:${location.port}`
 //     console.log('Websocket connected!');
 // });
 
+
+document.getElementById("posSentButton").addEventListener("click", function() {
+    updateSentiment("pos")
+}, false);
+
+document.getElementById("negSentButton").addEventListener("click", function() {
+    updateSentiment("neg")
+}, false);
+
+
 $(document).ready(function () {
     $('#sidebarCollapse').on('click', function () {
         $('#sidebar').toggleClass('active');

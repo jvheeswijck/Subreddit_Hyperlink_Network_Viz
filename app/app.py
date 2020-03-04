@@ -48,10 +48,13 @@ bins = pd.cut(df_all.timestamp, 50)
 df_all['bin'] = bins
 pos_rows,neg_rows = split_sentiment(df_all)
 
-links = df_all.groupby(['source', 'target', 'sentiment'])['post_id'].count().reset_index()
-links.columns = 'source target sentiment n'.split()
-links = links.sort_values(by='n', ascending=False)
+print(pos_rows)
 
+def compute_links(df):
+    links = df.groupby(['source', 'target', 'sentiment'])['post_id'].count().reset_index()
+    links.columns = 'source target sentiment n'.split()
+    links = links.sort_values(by='n', ascending=False)
+    return links
 
 with open('../data/tags/tag_hierarchical.json', 'r') as f:
     tag_graph = json.load(f)
@@ -99,6 +102,7 @@ def returnjson():
 
 @app.route("/nodes",methods=["GET","POST"])
 def get_nodes():
+    links = compute_links(df_all)
     links_trunc = links[:link_limit]
     sub_set = set()
     sub_set.update(links_trunc.source)
@@ -108,6 +112,31 @@ def get_nodes():
 
 @app.route("/links",methods=["GET","POST"])
 def get_links():
+    links = compute_links(df_all)
+    return prepare_csv(links.iloc[:link_limit])
+
+
+
+@app.route("/sentiment_nodes",methods=["GET","POST"])
+def get_sent_nodes():
+    if request.args.get('s') == 'pos':
+        links = compute_links(pos_rows)
+    elif request.args.get('s') == 'neg':
+        links = compute_links(neg_rows)
+
+    links_trunc = links[:link_limit]
+    sub_set = set()
+    sub_set.update(links_trunc.source)
+    sub_set.update(links_trunc.target)
+    points = df_points[df_points['sub'].map(lambda x: x in sub_set)]
+    return prepare_csv(points)
+
+@app.route("/sentiment_links",methods=["GET","POST"])
+def get_sent_links():
+    if request.args.get('s') == 'pos':
+        links = compute_links(pos_rows)
+    elif request.args.get('s') == 'neg':
+        links = compute_links(neg_rows)
     return prepare_csv(links.iloc[:link_limit])
 
 
