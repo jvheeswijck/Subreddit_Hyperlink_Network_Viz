@@ -86,7 +86,7 @@ def serve_data():
         return prepare_csv(df_points)
 
     if request.args.get('g') == 'tag_graph':
-        return jsonify(tag_graph['root'])
+        return jsonify(tag_graph)
 
 # @socketio.on('date_change')
 # def on_date_update(dates):

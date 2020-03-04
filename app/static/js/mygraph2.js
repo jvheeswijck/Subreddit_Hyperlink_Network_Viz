@@ -2,7 +2,7 @@ var base_url = `http://${document.domain}:${location.port}`;
 
 // Default Settings //
 // Objects
-var link_limit = 2000;
+var link_limit = 2500;
 var node_limit = 2000;
 
 // Styling
@@ -264,7 +264,7 @@ function loadAndDraw(nodeURL, linkURL) {
             // });
 
             // Do we want to highlight nodes with low value connections?
-            setAdj();
+            setAdj(link_work);
             // link_work.forEach(function (d) {
             //     adjlist[d.source.index + "-" + d.target.index] = true;
             //     adjlist[d.target.index + "-" + d.source.index] = true;
@@ -493,9 +493,9 @@ function updateGraph(node_data, link_data) {
 
 }
 
-test_links = link_master.filter(function (d) {
-    return d.source.sub == 'iama'
-})
+// test_links = link_master.filter(function (d) {
+//     return d.source.sub == 'iama'
+// })
 // filters = [{'sentiment': "1"}]
 
 
