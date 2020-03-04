@@ -1,4 +1,8 @@
 # Info Viz: Visualizing Inter-Subbreddit Hyperlinking
+## What we did after the meeting of 27-02:
+- Encoding in size of the node
+- Adding links between nodes
+- Filtering on sentiment is implemented
 
 ## To-Do
 __updateNodes Function__
