@@ -10,7 +10,7 @@
 ## To-Do
 __updateNodes Function__
 
-__updateLinks__
+__updateLinks__ (DONE-ish)
 
 __Date Range Selector__
 Update the graph code
