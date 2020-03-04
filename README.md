@@ -35,6 +35,14 @@ __Data Filters and Toggles on the Left Sidebar__
 
 ## Meeting Notes
 ### 27-02-2020
-
+- We should add more functionality which:
+    - is not a plot
+    - is self sufficient
+    - is not an individual component
+    - conveys information
+ - Add custom labelling such that:
+    - Interesting clusters can be shown
+    - Encoding in the size of circle and color
+ -Try to implement something like a sunburst: if circular does not fit in the page idea, try semi-spherical, so that as the filtering criteria in the sun burst increases, the data decreases and the page is not too cluttered. 
 
 ### 20-02-2020
