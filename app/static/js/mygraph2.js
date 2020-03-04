@@ -388,7 +388,7 @@ function clearHighlights() {
     link_layer.style('opacity', 1);
 }
 
-tooltip = d3.select("body").append("div")
+tooltip = d3.select(".wrapper").append("div")
     .attr("class", "svg-tooltip")
     .style("position", "absolute")
     .style("visibility", "hidden")
