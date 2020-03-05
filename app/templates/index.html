@@ -9,7 +9,8 @@
   <div class="collapse-spot-left">
     <button type="button" id="sidebarCollapse" class="btn btn-info">
       <i class="fas fa-align-left"></i>
-      <span>&gt;</span>
+      <div class="arrow-right" id='left-collapse-arrow'></div>
+      <!-- <span>&gt;</span> -->
     </button>
   </div>
 
@@ -23,8 +24,8 @@
   <div class='row d-flex justify-content-center sidebar-row'>
     <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Sentiment </span>
     <div id='sentiment-slider'>
-      <button class="buttonn" id="posSentButton">Positive</button>
-      <button class="button" id="negSentButton">Negative</button>
+      <!-- <button class="buttonn" id="posSentButton">Positive</button>
+      <button class="button" id="negSentButton">Negative</button> -->
     </div>
   </div>
 
@@ -74,8 +75,9 @@
 <div class="shadow active" id="rightbar">
   <div class="collapse-spot-right">
     <button type="button" id="rightbarCollapse" class="btn btn-info">
-      <i class="fas fa-align-right"></i>
-      <span>&lt;</span>
+      <div class='arrow-left' id='right-collapse-arrow'></div>
+      <!-- <i class="fas fa-align-right"></i> -->
+      <!-- <span>&lt;</span> -->
     </button>
   </div>
 </div>
@@ -90,6 +92,8 @@
 <script src="../static/dist/js/nouislider.js"></script>
 <script src="../static/js/range_picker.js"></script>
 <link href="../static/css/rangepicker.css" rel="stylesheet" />
+<script src="../static/js/filter_sliders.js"></script>
+<link href="../static/css/filter_sliders.css" rel="stylesheet" />
 <script src="../static/js/line_scent.js"></script>
 <!-- <script src="../static/js/graph.js"></script> -->
 <script src="../static/js/mygraph2.js"></script>

@@ -7,38 +7,42 @@ base_url = `http://${document.domain}:${location.port}`
 // });
 
 
-document.getElementById("posSentButton").addEventListener("click", function() {
-    updateSentiment("pos")
-}, false);
+// document.getElementById("posSentButton").addEventListener("click", function() {
+//     updateSentiment("pos")
+// }, false);
 
-document.getElementById("negSentButton").addEventListener("click", function() {
-    updateSentiment("neg")
-}, false);
+// document.getElementById("negSentButton").addEventListener("click", function() {
+//     updateSentiment("neg")
+// }, false);
 
 
 $(document).ready(function () {
     $('#sidebarCollapse').on('click', function () {
         $('#sidebar').toggleClass('active');
-        let value = $('#sidebarCollapse span').text();
-        if (value == "<"){
-            $('#sidebarCollapse span').text('>')
+        let arrow = d3.select('#left-collapse-arrow')
+        if (d3.select('#sidebar').classed('active')){
+            arrow.classed('arrow-right', true)
+            arrow.classed('arrow-left', false)
         } else {
-            $('#sidebarCollapse span').text('<')
+            arrow.classed('arrow-left', true)
+            arrow.classed('arrow-right', false)
         }
     });
 
     $('#rightbarCollapse').on('click', function () {
         $('#rightbar').toggleClass('active');
-        let value = $('#rightbarCollapse span').text();
-        if (value == "<"){
-            $('#rightbarCollapse span').text('>')
+        let arrow = d3.select('#right-collapse-arrow')
+        if (d3.select('#rightbar').classed('active')){
+            arrow.classed('arrow-right', false)
+            arrow.classed('arrow-left', true)
         } else {
-            $('#rightbarCollapse span').text('<')
+            arrow.classed('arrow-left', false)
+            arrow.classed('arrow-right', true)
         }
     });
 
     // Draw Scent
-    date_scent = new LineScent('.noUi-target');
+    date_scent = new LineScent('#range-slider');
     scent_data = d3.csv(`${base_url}/data?g=volume_hist`, function(d){
         return {'positive':Number(d.positive), 'negative':Number(d.negative)}
     });
