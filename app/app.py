@@ -48,7 +48,7 @@ bins = pd.cut(df_all.timestamp, 50)
 df_all['bin'] = bins
 pos_rows,neg_rows = split_sentiment(df_all)
 
-print(pos_rows)
+# print(pos_rows)
 
 def compute_links(df):
     links = df.groupby(['source', 'target', 'sentiment'])['post_id'].count().reset_index()

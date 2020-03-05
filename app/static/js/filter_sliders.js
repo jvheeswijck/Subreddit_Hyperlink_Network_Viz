@@ -52,3 +52,30 @@ sent_slider.noUiSlider.on('change', function () {
         // d3.selectAll('#link-layer .link').transition('color').delay(1000).duration(500).style('stroke', color_pos)
     }
 })
+
+var highlight_slider = document.getElementById('highlight-slider');
+var nodesize_slider = document.getElementById('nodesize-slider');
+
+noUiSlider.create(highlight_slider, {
+    start: [0],
+    step: 1,
+    range: {
+        'min': 0,
+        'max': 2
+    },
+    behaviour: 'tap-drag',
+    animate: true,
+    animationDuration: 100,
+});
+
+noUiSlider.create(nodesize_slider, {
+    start: [0],
+    step: 1,
+    range: {
+        'min': 0,
+        'max': 1
+    },
+    behaviour: 'tap-drag',
+    animate: true,
+    animationDuration: 100,
+});

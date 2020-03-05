@@ -86,10 +86,26 @@ background_area.on('click', () => {
 var transform = d3.zoomIdentity.translate(100, 50).scale(0.8)
 var zoom = d3.zoom()
     .scaleExtent([0.2, 10])
-    .on("zoom", function () {
+    .on("zoom",  function () {
         svg
             .attr('transform', d3.event.transform)
+            
+    //     // nameFunction()
+    //     // console.log("insidezoom")
+    //     // console.log(d3.zoomIdentity.scale(this));
+    //     // console.log(d3.zoomTransform(element).k)
+    //     console.log(zoom)
+
+
     });
+
+// function nameFunction() {
+//     d3.selectAll('.node')
+//     .enter()
+//     .append("text")
+//     .attr("x", (d) => xScale(d.x))
+//     .attr("y", (d) => yScale(d.y))
+//         }
 d3.select('#svg-div').call(zoom)
 
 // Force Graph
@@ -112,6 +128,11 @@ var node_layer = svg
     .append('g')
     .attr('class', 'layer')
     .attr('id', 'node-layer');
+
+var text_layer = svg
+    .append('g')
+    .attr('class', 'layer')
+    .attr('id', 'text-layer');
 
 var highlight_layer = svg
     .append('g')
@@ -272,6 +293,8 @@ function loadAndDraw(nodeURL, linkURL) {
                 .duration(0)
                 .style('visibility', 'visible');
 
+
+            
             // links.attr("d", function (d) {
             //     var dx = xScale(d.target.x) - xScale(d.source.x),
             //         dy = yScale(d.target.y) - yScale(d.source.y),
@@ -661,3 +684,20 @@ $('#search-input').on('input', function () {
 function clearSearchHighlights() {
     highlight_layer.selectAll('.search.node').remove()
 }
+
+
+// function nameFunction() {
+//     text = text_layer.selectAll("text")
+//         .data(node_work)
+//         .enter()
+//         .append("text")
+//         .text(function (d) {
+//             console.log(d.sub);
+//             return d.sub;
+
+//         })
+//         .attr("dx", (d) => xScale(d.x))
+//         .attr("dy", (d) => yScale(d.y))
+//         .style("font-family", "Arial")
+//         .style("font-size", 4);
+// }
