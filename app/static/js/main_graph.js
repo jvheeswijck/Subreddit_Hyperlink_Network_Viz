@@ -372,30 +372,25 @@ function nodeOutFunction() {
 function setHighlights(d, e) {
     var index = d3.select(e).datum().index;
 
-    // Filter Existing Nodes
     highlight_links = links
         .filter(function (d) {
             return d.source.index == index || d.target.index == index;
-        }).nodes();
+        });
 
     highlight_nodes = nodes
-        .filter((d) => neigh(index, d.index))
-        .nodes();
+        .filter((d) => neigh(index, d.index));
 
     // Insert Elements into Highlight Layer
-    highlight_links.forEach(function (d) {
-        highlight_layer.node().appendChild(d.cloneNode())
+    cloneElements(highlight_links, '#highlight-layer', function(d){
+        d.style('stroke-width', function(f){
+            return d3.select(this).style('stroke-width') + 0.5
+        })
     })
 
-    highlight_nodes.forEach(function (d) {
-        highlight_layer.node().appendChild(d.cloneNode())
-    })
+    cloneElements(highlight_nodes, '#highlight-layer');
 
     highlight_layer.selectAll('.node')
         .style('fill', highlight_node_color_primary)
-
-
-    // highlight_layer.selectAll('.link').data(link_work, keyLinks).style('stroke-width', (d) => lineScale(d.n) + 1)
 
     link_layer.style('opacity', 0.1)
     node_layer.style('opacity', 0.5)
@@ -599,4 +594,15 @@ function test_performance() {
             console.log([t3 - t2, t1 - t0])
         })
     })
+}
+
+function cloneElements(selection, target_selector, callback=null){
+    let target = $(target_selector);
+    // Maybe switch from d3 selectors
+    let elements = d3.selectAll(selection.nodes().map((d) => d.cloneNode()))
+    if (callback != null){
+        callback(elements)
+    }
+    elements = elements.nodes()
+    elements.forEach((d) => target.append(d))
 }
