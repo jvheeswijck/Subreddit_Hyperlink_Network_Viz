@@ -46,7 +46,7 @@ __Data Filters and Toggles on the Left Sidebar__
 __Info Display Toggles__
 +highlight behaviour (only in links, only out links, both)
 
-__Node Search Function__
+__Node Search Function (90% done)__ 
 -Implement using hover over and text-box
 
 ## Meeting Notes
