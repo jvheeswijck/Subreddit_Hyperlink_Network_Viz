@@ -43,9 +43,12 @@ sent_slider.noUiSlider.on('change', function () {
     let val = Number(sent_slider.noUiSlider.get())
     if (val==0){
         updateSentiment("neg")
+        // d3.selectAll('#link-layer .link').transition('color').delay(1000).duration(500).style('stroke', color_neg)
     } else if(val==1) {
-        updateSentiment("none")
+        updateSentiment("both")
+        // d3.selectAll('#link-layer .link').transition('color').delay(1000).duration(500).style('stroke', color_neut)
     } else {
         updateSentiment("pos")
+        // d3.selectAll('#link-layer .link').transition('color').delay(1000).duration(500).style('stroke', color_pos)
     }
 })

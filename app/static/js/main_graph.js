@@ -1,5 +1,11 @@
 var base_url = `http://${document.domain}:${location.port}`;
 
+let color_neut_line = '#aaa'
+
+// let color_neg = '#f03333',
+//     color_neut = '#666',
+//     color_pos = '#7a99c5';
+
 // Default Settings //
 // Objects
 var link_limit = 2500;
@@ -34,6 +40,14 @@ var link_highlight_type = 'both'
 
 var clicked_node = null;
 var node_labels = false;
+
+// State-Variable
+var link_sent_state = "both"
+
+
+// Link State to Color Map
+getLinkColor = {'1':color_pos, 'both':color_neut_line, '-1': color_neg}
+
 
 // Margins
 var margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -443,7 +457,7 @@ function updateNodes(s, nodeURL) {
 }
 
 
-function updateGraph(node_data, link_data) {
+function updateGraph(node_data, link_data, sent) {
     // Need to update the data bound to nodes
 
     // Node Update
@@ -456,15 +470,20 @@ function updateGraph(node_data, link_data) {
         .data(link_data, keyLinks) // Bind new data
 
     links.exit() // Remove old data
-        .transition()
+        .transition('remove')
         .duration(0)
         .delay((d, i) => (i % 10) * 50)
         .remove()
 
-    links.transition()
+
+        // Rework This Animation
+    links.transition('update')
         .delay(500)
-        .duration(500)
+        .duration(510)
         .style("stroke-width", (d) => lineScale(d.n))
+        .style('stroke', function(){
+            return getLinkColor[link_sent_state]
+        })
 
     links
         .enter() // Append new lines
@@ -478,9 +497,12 @@ function updateGraph(node_data, link_data) {
         .attr("x2", (d) => xScale(d.target.x))
         .attr("y2", (d) => yScale(d.target.y))
         .merge(links) // Merge with existing lines and update data
-        .transition()
+        .transition('draw')
         .delay((d, i) => (i % 10) * 50 + 500)
-        .duration(1)
+        .duration(200)
+        .style('stroke', function(){
+            return getLinkColor[link_sent_state]
+        })
         .style('visibility', 'visible')
 
     // links
@@ -525,6 +547,9 @@ function updateSentiment(s) {
     console.log('updating graph')
     link_current_trunc = link_current.slice(0, link_limit)
     setAdj(link_current_trunc)
+
+    value_map = {'pos': "1", 'both':"both", 'neg':'-1'}
+    link_sent_state = value_map[s]
     updateGraph(null, link_current_trunc)
 
     // nodeURL = "/sentiment_nodes?s=" + s
