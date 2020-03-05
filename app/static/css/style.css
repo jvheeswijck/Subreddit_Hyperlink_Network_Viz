@@ -78,7 +78,7 @@ body {
     z-index: 9999;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    padding: 12px 0px;
+    padding: 15px 1px;
 }
 
 #rightbarCollapse{
@@ -89,7 +89,7 @@ body {
     z-index: 9998;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    padding: 12px 0px;
+    padding: 15px 1px;
 }
 
 /* THIS IS NOT WORKING */
@@ -261,4 +261,22 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+
+/* Arrows */
+.arrow-right {
+    width: 0; 
+    height: 0; 
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 7px solid white;
+  }
+  
+.arrow-left {
+    width: 0; 
+    height: 0; 
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent; 
+    border-right: 7px solid white; 
 }

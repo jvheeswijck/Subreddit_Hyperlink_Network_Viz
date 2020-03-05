@@ -104,6 +104,11 @@ var highlight_layer = svg
     .attr('class', 'layer')
     .attr('id', 'highlight-layer');
 
+var subview_layer = svg
+    .append('g')
+    .attr('class', 'layer')
+    .attr('id', 'subview-layer');
+
 
 var adjlist = [];
 var link_master = null;
@@ -510,7 +515,7 @@ function updateSentiment(s) {
             return d.sentiment == "-1"
         })
     } else {
-
+        link_current = link_master;
     }
     console.log('Done filtering')
 
