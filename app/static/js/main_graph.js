@@ -46,7 +46,7 @@ var link_sent_state = "both"
 
 
 // Link State to Color Map
-getLinkColor = {'1':color_pos, 'both':color_neut_line, '-1': color_neg}
+getLinkColor = { '1': color_pos, 'both': color_neut_line, '-1': color_neg }
 
 
 // Margins
@@ -118,6 +118,11 @@ var highlight_layer = svg
     .attr('class', 'layer')
     .attr('id', 'highlight-layer');
 
+var search_layer = svg
+    .append('g')
+    .attr('class', 'layer')
+    .attr('id', 'search-layer');
+
 var subview_layer = svg
     .append('g')
     .attr('class', 'layer')
@@ -188,6 +193,8 @@ function loadAndDraw(nodeURL, linkURL) {
             node_work = node_master
             link_work = link_master.slice(0, link_limit)
 
+            subreddits = node_master.map((d) => d['sub'])
+
             // Set Domain Scales
             xScale = d3.scaleLinear()
                 .domain(d3.extent(node_work, (d) => Number(d.x)))
@@ -243,13 +250,6 @@ function loadAndDraw(nodeURL, linkURL) {
             //     }))
             //     .on('tick', ticked);
 
-            // console.log('This is animating')
-            // nodes.transition()
-            //     .duration(200)
-            //     .delay((d, i) => (i % 10) * 100)
-            //     .attr('opacity', 0.8)
-            //     .attr('r', default_circle_min_radius)
-
             // Draw Links
             links = link_layer.selectAll('.link')
                 .data(link_work, keyLinks)
@@ -260,8 +260,6 @@ function loadAndDraw(nodeURL, linkURL) {
                 .style("stroke-width", (d) => lineScale(d.n))
                 .style('opacity', 1)
                 .style('visibility', 'hidden')
-                // .style('stroke-dasharray', "4")
-                // .style('stroke-dasharray', (d) => (d.sentiment == "1" ? null : null))
                 .attr("x1", (d) => xScale(d.source.x))
                 .attr("y1", (d) => yScale(d.source.y))
                 .attr("x2", (d) => xScale(d.target.x))
@@ -282,12 +280,8 @@ function loadAndDraw(nodeURL, linkURL) {
             //         + xScale(d.target.x) + "," + yScale(d.target.y);
             // });
 
-            // Do we want to highlight nodes with low value connections?
             setAdj(link_work);
-            // link_work.forEach(function (d) {
-            //     adjlist[d.source.index + "-" + d.target.index] = true;
-            //     adjlist[d.target.index + "-" + d.source.index] = true;
-            // });
+            setSearch(node_work);
 
 
             // d3.select('#svg-div').attr('transform', transform);
@@ -381,9 +375,9 @@ function setHighlights(d, e) {
         .filter((d) => neigh(index, d.index));
 
     // Insert Elements into Highlight Layer
-    cloneElements(highlight_links, '#highlight-layer', function(d){
-        d.style('stroke-width', function(f){
-            return d3.select(this).style('stroke-width') + 0.5
+    cloneElements(highlight_links, '#highlight-layer', function (d) {
+        d.style('stroke-width', function (f) {
+            return d3.select(this).style('stroke-width') + 0.8
         })
     })
 
@@ -471,12 +465,12 @@ function updateGraph(node_data, link_data, sent) {
         .remove()
 
 
-        // Rework This Animation
+    // Rework This Animation
     links.transition('update')
         .delay(500)
         .duration(510)
         .style("stroke-width", (d) => lineScale(d.n))
-        .style('stroke', function(){
+        .style('stroke', function () {
             return getLinkColor[link_sent_state]
         })
 
@@ -495,7 +489,7 @@ function updateGraph(node_data, link_data, sent) {
         .transition('draw')
         .delay((d, i) => (i % 10) * 50 + 500)
         .duration(200)
-        .style('stroke', function(){
+        .style('stroke', function () {
             return getLinkColor[link_sent_state]
         })
         .style('visibility', 'visible')
@@ -543,7 +537,7 @@ function updateSentiment(s) {
     link_current_trunc = link_current.slice(0, link_limit)
     setAdj(link_current_trunc)
 
-    value_map = {'pos': "1", 'both':"both", 'neg':'-1'}
+    value_map = { 'pos': "1", 'both': "both", 'neg': '-1' }
     link_sent_state = value_map[s]
     updateGraph(null, link_current_trunc)
 
@@ -596,13 +590,74 @@ function test_performance() {
     })
 }
 
-function cloneElements(selection, target_selector, callback=null){
+function cloneElements(selection, target_selector, callback = null) {
     let target = $(target_selector);
-    // Maybe switch from d3 selectors
-    let elements = d3.selectAll(selection.nodes().map((d) => d.cloneNode()))
-    if (callback != null){
+    let elements = [];
+    let data = [];
+
+    selection.each(function (d) {
+        new_node = $(this)[0].cloneNode() //.setAttribute('data-d3', d)
+        elements.push(new_node);
+        data.push(d);
+    })
+    elements = d3.selectAll(elements).data(data)
+
+    // let elements = d3.selectAll(selection.nodes().map((d) => d.cloneNode().setAttribute('data-d3', d.data())))
+    if (callback != null) {
         callback(elements)
     }
     elements = elements.nodes()
     elements.forEach((d) => target.append(d))
+}
+
+function getNodeList(ary) {
+    return ary.map((d) => d['sub'])
+}
+
+var subs_suggestions = null;
+
+function setSearch(ary) {
+    subreddits = getNodeList(ary)
+    subs_suggestions = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: subreddits
+    });
+
+    // Initializing the typeahead
+    $('.typeahead').typeahead({
+        hint: true,
+        highlight: true, /* Enable substring highlighting */
+        minLength: 1, /* Specify minimum characters required for showing result */
+        // limit: 4
+    },
+        {
+            name: 'subs',
+            source: subs_suggestions
+        });
+}
+
+// d3.select('#search-input').on('change', function(){
+// })
+test_elements = null;
+test_query_result = null;
+
+$('#search-input').on('input', function () {
+    $('#search-layer').empty();
+    let csearch = $(this).val();
+    subs_suggestions.search(csearch, function (data) {
+        let subs = new Set()
+        data.forEach((d) => subs.add(d))
+        test_query_result = subs;
+        query_elements = nodes.filter((d) => subs.has(d['sub']))
+        test_elements = query_elements;
+        cloneElements(query_elements, '#search-layer', function (d) {
+            d.style('fill', 'blue')
+        })
+    })
+
+})
+
+function clearSearchHighlights() {
+    highlight_layer.selectAll('.search.node').remove()
 }
