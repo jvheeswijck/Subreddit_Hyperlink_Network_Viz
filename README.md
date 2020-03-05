@@ -39,8 +39,15 @@ Can have two modes: one - non node selected view, two: node selected view
 (Node Highlighted vs Non-Highlighted Views)
 
 __Data Filters and Toggles on the Left Sidebar__
-In/Out Links for Subreddit View
-Perhaps toggle highlight behaviour (only in links, only out links, both)
++Sentiment (90% Done)(Maybe include pip labels below)
++In/Out Links (for Subreddit View only)
++Maybe LIWC filtering with range-sliders
+
+__Info Display Toggles__
++highlight behaviour (only in links, only out links, both)
+
+__Node Search Function__
+-Implement using hover over and text-box
 
 ## Meeting Notes
 ### 27-02-2020
