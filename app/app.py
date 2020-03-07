@@ -58,6 +58,9 @@ def compute_links(df):
 
 with open('../data/tags/tag_hierarchical.json', 'r') as f:
     tag_graph = json.load(f)
+
+with open('../data/tags/tag_filter.json', 'r') as f:
+    tag_filter = json.load(f)
     
 
 def prepare_csv(df):
@@ -87,6 +90,9 @@ def serve_data():
 
     if request.args.get('g') == 'tag_graph':
         return jsonify(tag_graph)
+
+    if request.args.get('g') == 'tag_filter':
+        return jsonify(tag_filter)   
 
 # @socketio.on('date_change')
 # def on_date_update(dates):
