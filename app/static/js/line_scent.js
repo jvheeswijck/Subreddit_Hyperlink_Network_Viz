@@ -3,9 +3,9 @@ class LineScent {
   constructor(element_selector) {
     this.element_selector = element_selector
     this.margin = { top: 0, right: 0, bottom: 0, left: 0 };
-    this.width = $(element_selector).parent().width() - margin.left - margin.right;
+    this.width = $(element_selector).parent().width() - this.margin.left - this.margin.right;
     // this.height = $(element_selector).parent().height() - margin.top - margin.bottom;
-    this.height = 40 - margin.top - margin.bottom;
+    this.height = 40 - this.margin.top - this.margin.bottom;
 
     let full_width = this.width + this.margin.left + this.margin.right;
     let full_height = this.height + this.margin.top + this.margin.bottom;
@@ -103,8 +103,8 @@ class LineScent {
   }
 
   setScales() {
-    this.width = $(this.element_selector).parent().width() - margin.left - margin.right;
-    this.height = 40 - margin.top - margin.bottom;
+    this.width = $(this.element_selector).parent().width() - this.margin.left - this.margin.right;
+    this.height = 40 - this.margin.top - this.margin.bottom;
 
     this.xScale.range([0, this.width])
     this.yScalePos.range([0, this.height / 2 - 1]) // input
