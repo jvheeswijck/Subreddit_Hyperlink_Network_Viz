@@ -57,18 +57,30 @@
     <div id='nodesize-slider'>
     </div>
   </div>
+  <div class='row d-flex justify-content-center sidebar-row'>
+    <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Node Color </span>
+    <div id='nodecolor-slider'>
+    </div>
+  </div>
 </div>
 
 <!-- Middle Content -->
 <div class="container" id="content">
-  <div class='d-flex justify-content-center' id='search-box-wrapper'>
+
+  <!-- Search Bar -->
+  <div class='d-flex' id='search-box-wrapper'>
     <div class="bs-example">
-          <input type="text" class="typeahead tt-query" autocomplete="off" spellcheck="false" id='search-input'>
+      <input type="text" class="typeahead tt-query" autocomplete="off" spellcheck="false" id='search-input'>
+    </div>
+    <div class="x-close" id='clear-search'>
+      <i class="far fa-times-circle"></i>
+      <a href="#">
+        <span class="glyphicon glyphicon-remove"></span>
+      </a>
     </div>
   </div>
 
   <!-- Date Ranger Slider -->
-  <!-- <div class='svg-tooltip' id='node-info'></div> -->
   <div class="date-slider-wrapper d-flex justify-content-center">
     <div id="range-volume-scent"></div>
     <div id="range-slider"></div>
@@ -91,6 +103,10 @@
   const start_date = new Date("{{ first_link }}");
   const end_date = new Date("{{ last_link }}");
 </script>
+<script src="../static/js/main_graph.js"></script>
+<script src="../static/js/line_scent.js"></script>
+
+<!-- noUI Slider -->
 <link href="../static/dist/css/nouislider.css" rel="stylesheet" />
 <script src="../static/dist/js/nouislider.js"></script>
 
@@ -100,11 +116,13 @@
 <script src="../static/js/filter_sliders.js"></script>
 <link href="../static/css/filter_sliders.css" rel="stylesheet" />
 
-<script src="../static/js/line_scent.js"></script>
-<script src="../static/js/main_graph.js"></script>
-
 <script src="../static/js/search_bar.js"></script>
 <link href="../static/css/search_bar.css" rel="stylesheet" />
 
+<link href="../static/css/icons.css" rel="stylesheet" />
+
+<script src="../static/js/sunburst_filter.js"></script>
 <script src="../static/js/main.js"></script>
+
+
 {% endblock %}

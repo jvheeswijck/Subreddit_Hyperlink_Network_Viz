@@ -2,13 +2,13 @@ var base_url = `http://${document.domain}:${location.port}`;
 
 let color_neut_line = '#aaa'
 
-// let color_neg = '#f03333',
-//     color_neut = '#666',
-//     color_pos = '#7a99c5';
+let color_neg = '#f03333',
+    color_neut = '#666',
+    color_pos = '#7a99c5';
 
 // Default Settings //
 // Objects
-var link_limit = 2500;
+var link_limit = 3000;
 var node_limit = 2000;
 
 // Styling
@@ -16,7 +16,7 @@ var default_node_color = "rgb(172, 220, 114)";
 var highlight_node_color_primary = 'red';
 var highlight_node_color_secondary = '#7a99c5';
 
-var default_circle_min_radius = 2;
+var default_circle_min_radius = 1.75;
 var default_circle_max_radius = 10;
 
 var default_node_opacity = 0.8;
@@ -31,7 +31,6 @@ const min_line_opac = 0.1,
 // Sentiment Colors
 // Interpolate red and blue
 
-var link_highlight_type = 'both'
 // End Settings //
 
 // Set functions //
@@ -41,9 +40,10 @@ var link_highlight_type = 'both'
 var clicked_node = null;
 var node_labels = false;
 
-// State-Variable
+// Filter and Info State-Variable
 var link_sent_state = "both"
-
+var link_highlight_type = 'both'
+var node_size_type = 'total_in'
 
 // Link State to Color Map
 getLinkColor = { '1': color_pos, 'both': color_neut_line, '-1': color_neg }
@@ -60,6 +60,8 @@ var yScale = null;
 var nodeScale = d3.scaleSqrt().range([default_circle_min_radius, default_circle_max_radius]);
 var lineScale = d3.scalePow().range([line_width_min, line_width_max]);
 var opacScale = d3.scaleLog().range([min_line_opac, max_line_opac]);
+
+var data_load_callbacks = []
 
 var svg = d3.select('#svg-div')
     .append('svg')
@@ -86,15 +88,15 @@ background_area.on('click', () => {
 var transform = d3.zoomIdentity.translate(100, 50).scale(0.8)
 var zoom = d3.zoom()
     .scaleExtent([0.2, 10])
-    .on("zoom",  function () {
+    .on("zoom", function () {
         svg
             .attr('transform', d3.event.transform)
-            
-    //     // nameFunction()
-    //     // console.log("insidezoom")
-    //     // console.log(d3.zoomIdentity.scale(this));
-    //     // console.log(d3.zoomTransform(element).k)
-    //     console.log(zoom)
+
+        //     // nameFunction()
+        //     // console.log("insidezoom")
+        //     // console.log(d3.zoomIdentity.scale(this));
+        //     // console.log(d3.zoomTransform(element).k)
+        //     console.log(zoom)
 
 
     });
@@ -119,6 +121,8 @@ var simulation = null;
 //     .force('collision', d3.forceCollide().radius(4))
 //     .on("tick", ticked);
 
+
+// SVG Layers
 var link_layer = svg
     .append('g')
     .attr('class', 'layer')
@@ -157,12 +161,6 @@ var link_work = null;
 var node_work = null;
 var nodeById = d3.map();
 
-
-var t0 = null,
-    t1 = null,
-    t2 = null,
-    t3 = null;
-
 // Load and Draw Data
 function loadAndDraw(nodeURL, linkURL) {
 
@@ -180,6 +178,7 @@ function loadAndDraw(nodeURL, linkURL) {
                 node.out_neg = 0;
                 node.adj_src = [];
                 node.adj_trgt = [];
+                node.tags = new Set()
                 node.index = index;
                 index++;
                 Object.defineProperty(node, 'total_in', {
@@ -202,7 +201,7 @@ function loadAndDraw(nodeURL, linkURL) {
                 } else {
                     link.source.out_neg += link.n
                 }
-                node = nodeById.get(link.target);
+                // node = nodeById.get(link.target);
                 if (link.sentiment == "1") {
                     link.target.in_pos += link.n
                 } else {
@@ -212,7 +211,8 @@ function loadAndDraw(nodeURL, linkURL) {
                 link.target.adj_trgt.push(link);
             });
             node_work = node_master
-            link_work = link_master.slice(0, link_limit)
+            link_work = link_master
+            link_trunc = link_work.slice(0, link_limit)
 
             subreddits = node_master.map((d) => d['sub'])
 
@@ -273,7 +273,7 @@ function loadAndDraw(nodeURL, linkURL) {
 
             // Draw Links
             links = link_layer.selectAll('.link')
-                .data(link_work, keyLinks)
+                .data(link_trunc, keyLinks)
                 .enter()
                 .append("line")
                 .attr('class', 'link')
@@ -294,7 +294,7 @@ function loadAndDraw(nodeURL, linkURL) {
                 .style('visibility', 'visible');
 
 
-            
+
             // links.attr("d", function (d) {
             //     var dx = xScale(d.target.x) - xScale(d.source.x),
             //         dy = yScale(d.target.y) - yScale(d.source.y),
@@ -303,9 +303,10 @@ function loadAndDraw(nodeURL, linkURL) {
             //         + xScale(d.target.x) + "," + yScale(d.target.y);
             // });
 
-            setAdj(link_work);
+            setAdj(link_trunc);
             setSearch(node_work);
 
+            data_load_callbacks.forEach((d) => d());
 
             // d3.select('#svg-div').attr('transform', transform);
             // svg.attr('transform', transform);
@@ -318,8 +319,35 @@ function setAdj(link_ary) {
     adjlist = []
     link_ary.forEach(function (d) {
         adjlist[d.source.index + "-" + d.target.index] = true;
-        adjlist[d.target.index + "-" + d.source.index] = true;
+        // adjlist[d.target.index + "-" + d.source.index] = true; //Directional Graph
     });
+}
+
+function updateNodeData(node_data, link_data) {
+    nodes = node_layer.selectAll('.node');
+    node_data.forEach(function (node) {
+        node.in_pos = 0;
+        node.out_pos = 0;
+        node.in_neg = 0;
+        node.out_neg = 0;
+        node.adj_src = [];
+        node.adj_trgt = [];
+    })
+    link_data.forEach(function (link) {
+        if (link.sentiment == "1") {
+            link.source.out_pos += link.n
+        } else {
+            link.source.out_neg += link.n
+        }
+        if (link.sentiment == "1") {
+            link.target.in_pos += link.n
+        } else {
+            link.target.in_neg += link.n
+        }
+        link.source.adj_src.push(link);
+        link.target.adj_trgt.push(link);
+    })
+    nodes = nodes.data(node_data, keyNodes)
 }
 
 // Initialize graph
@@ -328,6 +356,10 @@ loadAndDraw('/nodes', '/links');
 
 function keyLinks(d) {
     return `${d.source.sub}-${d.target.sub}`
+}
+
+function keyNodes(d) {
+    return d['sub']
 }
 
 function filterNodes() {
@@ -375,9 +407,9 @@ function nodeOverFunction(d) {
     highlight_layer.node().appendChild(selected_node)
 };
 
+// When cursor leaves a node
 function nodeOutFunction() {
     tooltip.style("visibility", "hidden")
-    // tooltip_info
     if (clicked_node == null) {
         clearHighlights();
     }
@@ -385,23 +417,46 @@ function nodeOutFunction() {
 }
 
 
-// Highlighting Functionality
-function setHighlights(d, e) {
-    var index = d3.select(e).datum().index;
+// Highlighting Functionality -> Can refactor
+function setHighlights(d) {
+    let index = null
+    if (clicked_node == null) {
+        index = d.index;
+    } else {
+        index = d3.select(clicked_node).datum().index;
+    }
 
-    highlight_links = links
-        .filter(function (d) {
-            return d.source.index == index || d.target.index == index;
-        });
+    let high_map = { 'in': 'target', 'out': 'source' }
+    // Might be a nicer way to maket his
+    if (link_highlight_type == "both") {
+        highlight_links = links
+            .filter(function (d) {
+                return d.source.index == index || d.target.index == index;
+            });
 
-    highlight_nodes = nodes
-        .filter((d) => neigh(index, d.index));
+        highlight_nodes = nodes
+            .filter((d) => neigh(index, d.index) || neigh(d.index, index));
+    } else {
+        highlight_links = links
+            .filter(function (d) {
+                return d[high_map[link_highlight_type]].index == index;
+            });
+        if (link_highlight_type == 'in') {
+            highlight_nodes = nodes
+                .filter((d) => neigh(d.index, index));
+        } else {
+            highlight_nodes = nodes
+                .filter((d) => neigh(index, d.index));
+        }
+
+    }
 
     // Insert Elements into Highlight Layer
     cloneElements(highlight_links, '#highlight-layer', function (d) {
         d.style('stroke-width', function (f) {
             return d3.select(this).style('stroke-width') + 0.8
         })
+        .style('stroke', getLinkColor[link_sent_state])
     })
 
     cloneElements(highlight_nodes, '#highlight-layer');
@@ -469,8 +524,7 @@ function updateNodes(s, nodeURL) {
 }
 
 
-function updateGraph(node_data, link_data, sent) {
-    // Need to update the data bound to nodes
+function updateGraph(node_data, link_data) {
 
     // Node Update
 
@@ -528,70 +582,50 @@ function updateGraph(node_data, link_data, sent) {
     //     .delay((d, i) => (i % 10) * 100 + 1000)
     //     .duration(200)
     //     .style("stroke-width", (d) => lineScale(d.n))
-
-
 }
-
-// test_links = link_master.filter(function (d) {
-//     return d.source.sub == 'iama'
-// })
-// filters = [{'sentiment': "1"}]
-
 
 // May be adjusted to new filter workflow
 function updateSentiment(s) {
     if (s == "pos") {
-        link_current = link_master.filter(function (d) {
+        link_work = link_master.filter(function (d) {
             return d.sentiment == "1"
         })
     } else if (s == "neg") {
-        link_current = link_master.filter(function (d) {
+        link_work = link_master.filter(function (d) {
             return d.sentiment == "-1"
         })
     } else {
-        link_current = link_master;
+        link_work = link_master;
     }
-    console.log('Done filtering')
 
-    link_current = link_current.sort(function (a, b) {
+    link_work = link_work.sort(function (a, b) {
         return b.n - a.n
     })
-    console.log('updating graph')
-    link_current_trunc = link_current.slice(0, link_limit)
-    setAdj(link_current_trunc)
+
+    link_work_trunc = link_work.slice(0, link_limit)
+    setAdj(link_work_trunc)
 
     value_map = { 'pos': "1", 'both': "both", 'neg': '-1' }
-    link_sent_state = value_map[s]
-    updateGraph(null, link_current_trunc)
-
-    // nodeURL = "/sentiment_nodes?s=" + s
-    // linkURL = "/sentiment_links?s=" + s
-
-    // d3.selectAll('#link-layer').remove();
-    // d3.selectAll('.node').remove();
-
-    // loadAndDraw(nodeURL, linkURL)
-
-    // link_layer = svg
-    //     .append('g')
-    //     .attr('class', 'layer')
-    //     .attr('id', 'link-layer');
-
-    // node_layer = svg
-    //     .append('g')
-    //     .attr('class', 'layer')
-    //     .attr('id', 'node-layer');
-
+    link_sent_state = value_map[s];
+    updateNodeData(node_work, link_work)
+    updateGraph(null, link_work_trunc);
+    updateNodeSize();
+    if (clicked_node){
+        clearHighlights()
+        setHighlights()
+    }
 }
-
 
 function drawLinkedTooltips() {
 
 }
 
-// Change primary and secondary colors
-
 // Performance testing
+var t0 = null,
+    t1 = null,
+    t2 = null,
+    t3 = null;
+
 function test_performance() {
     let t0 = null;
     let t1 = null;
@@ -613,13 +647,16 @@ function test_performance() {
     })
 }
 
+
+// Clone a D3 selection to another node
+// Callback passes a d3 selection
 function cloneElements(selection, target_selector, callback = null) {
     let target = $(target_selector);
     let elements = [];
     let data = [];
 
     selection.each(function (d) {
-        new_node = $(this)[0].cloneNode() //.setAttribute('data-d3', d)
+        new_node = $(this)[0].cloneNode()
         elements.push(new_node);
         data.push(d);
     })
@@ -633,12 +670,13 @@ function cloneElements(selection, target_selector, callback = null) {
     elements.forEach((d) => target.append(d))
 }
 
+// Get name of all nodes
 function getNodeList(ary) {
     return ary.map((d) => d['sub'])
 }
 
-var subs_suggestions = null;
-
+// Set Typeahead Behaviour
+// Need to call this if drawn nodes change
 function setSearch(ary) {
     subreddits = getNodeList(ary)
     subs_suggestions = new Bloodhound({
@@ -658,32 +696,56 @@ function setSearch(ary) {
             name: 'subs',
             source: subs_suggestions
         });
-}
-
-// d3.select('#search-input').on('change', function(){
-// })
-test_elements = null;
-test_query_result = null;
-
-$('#search-input').on('input', function () {
-    $('#search-layer').empty();
-    let csearch = $(this).val();
-    subs_suggestions.search(csearch, function (data) {
-        let subs = new Set()
-        data.forEach((d) => subs.add(d))
-        test_query_result = subs;
-        query_elements = nodes.filter((d) => subs.has(d['sub']))
-        test_elements = query_elements;
-        cloneElements(query_elements, '#search-layer', function (d) {
-            d.style('fill', 'blue')
-        })
+    $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
+        console.log('Selection: ' + suggestion);
+        highlightSearchNodes([suggestion]);
+    });
+    d3.select('#search-input').on('change', function(){
+        highlightSearchNodes([suggestion]);
     })
 
+}
+
+var subs_suggestions = null;
+
+
+function highlightSearchNodes(data) {
+    // Takes a list of subreddit names
+
+    $('#search-layer').empty();
+    let subs = new Set()
+    data.forEach((d) => subs.add(d))
+    query_elements = nodes.filter((d) => subs.has(d['sub']))
+    cloneElements(query_elements, '#search-layer', function (d) {
+        d.style('fill', 'blue')
+        d.style('opacity', 0.5)
+    })
+}
+
+// Highlight ndoes on search input
+$('#search-input').on('input', function () {
+    let csearch = $(this).val();
+    subs_suggestions.search(csearch, highlightSearchNodes.bind(this))
 })
 
 function clearSearchHighlights() {
     highlight_layer.selectAll('.search.node').remove()
 }
+
+function updateNodeSize() {
+    node_layer.selectAll('.node')
+        .transition('base_nodes')
+        .duration(400)
+        .delay((d, i) => (i % 5) * 100)
+        .attr("r", (d) => nodeScale(d[node_size_type]));
+    highlight_layer.selectAll('.node')
+        .transition('highlight_nodes')
+        .duration(400)
+        .delay((d, i) => (i % 5) * 100)
+        .attr("r", (d) => nodeScale(d[node_size_type]));
+}
+
+
 
 
 // function nameFunction() {
