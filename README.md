@@ -37,13 +37,11 @@ __In-Depth Information on the Right Sidebar__
 + (Node Highlighted vs Non-Highlighted Views)
 
 __Data Filters and Toggles on the Left Sidebar__  
-+ Sentiment (95% Done)(Maybe include pip labels below)
 + In/Out Links (for Subreddit View only)
 + Maybe LIWC filtering with range-sliders (Highly Optional)
 
 __Info Display Toggles__  
-+ Node Size Update Code
-+ Selected Highlight behaviour (Links: In, Out, Both)
++ Node Color Mode
 
 __Node Search Function (95% done)__  
 - Implement close button  
