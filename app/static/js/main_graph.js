@@ -81,6 +81,7 @@ var background_area = svg
 
 background_area.on('click', () => {
     clicked_node = null;
+    d3.selectAll("#highlight-layer .link").style("pointer-events", "none");
     nodeOutFunction();
 })
 
@@ -251,6 +252,8 @@ function loadAndDraw(nodeURL, linkURL) {
                         clicked_node = this;
                         setHighlights(d, this)
                     }
+                    d3.selectAll("#highlight-layer .link").style("pointer-events", "all");
+
                 })
                 .sort(function (a, b) { // Draw smaller nodes above
                     return b.total_out - a.total_out
@@ -388,6 +391,8 @@ function ticked() {
     //     .attr("cy", function (d) { return d.y; });
 }
 
+
+
 // Hover Functionalities
 function nodeOverFunction(d) {
     tooltip.style("visibility", "visible")
@@ -415,6 +420,16 @@ function nodeOutFunction() {
     }
     highlight_layer.select('#current-node').remove()
 }
+function highlightedLinkOver(d){
+    d3.select(this).style('stroke', 'yellow');
+    link_tooltip.style("visibility", "visible")
+    .html(() => {
+        const content = `<strong>Source:</strong> <span>${d.source.sub}</span><br><strong>Target:</strong> <span>${d.target.sub}</span><br><strong>Amount: ${d.n}</strong>`
+        
+        return content;
+    })
+}
+
 
 
 // Highlighting Functionality -> Can refactor
@@ -454,9 +469,12 @@ function setHighlights(d) {
     // Insert Elements into Highlight Layer
     cloneElements(highlight_links, '#highlight-layer', function (d) {
         d.style('stroke-width', function (f) {
-            return d3.select(this).style('stroke-width') + 0.8
+            return Number(d3.select(this).style('stroke-width')) + 0.2
         })
         .style('stroke', getLinkColor[link_sent_state])
+        .on('mouseover', highlightedLinkOver)
+        .on('mousemove', () => link_tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+        .on('mouseout', function(){link_tooltip.style('visibility', 'hidden'); d3.select(this).style("stroke", "#aaa")})
     })
 
     cloneElements(highlight_nodes, '#highlight-layer');
@@ -475,10 +493,16 @@ function clearHighlights() {
 }
 
 tooltip = d3.select(".wrapper").append("div")
-    .attr("class", "svg-tooltip")
+    .attr("class", "svg-tooltip mouse-tooltip")
     .style("position", "absolute")
     .style("visibility", "hidden")
     .text("");
+
+link_tooltip = d3.select(".wrapper").append("div")
+.attr("class", "mouse-tooltip")
+.style("position", "absolute")
+.style("visibility", "hidden")
+.text("");
 
 // Determine if two nodes are neighbors
 function neigh(a, b) {
@@ -763,3 +787,5 @@ function updateNodeSize() {
 //         .style("font-family", "Arial")
 //         .style("font-size", 4);
 // }
+
+
