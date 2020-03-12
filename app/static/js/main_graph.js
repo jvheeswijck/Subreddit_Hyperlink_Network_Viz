@@ -83,6 +83,7 @@ background_area.on('click', () => {
     clicked_node = null;
     d3.selectAll("#highlight-layer .link").style("pointer-events", "none");
     nodeOutFunction();
+    $('#text-layer').empty(); // May adjust this
 })
 
 // Pan and Zoom
@@ -92,7 +93,6 @@ var zoom = d3.zoom()
     .on("zoom", function () {
         svg
             .attr('transform', d3.event.transform)
-
         //     // nameFunction()
         //     // console.log("insidezoom")
         //     // console.log(d3.zoomIdentity.scale(this));
@@ -134,15 +134,15 @@ var node_layer = svg
     .attr('class', 'layer')
     .attr('id', 'node-layer');
 
-var text_layer = svg
-    .append('g')
-    .attr('class', 'layer')
-    .attr('id', 'text-layer');
-
 var highlight_layer = svg
     .append('g')
     .attr('class', 'layer')
     .attr('id', 'highlight-layer');
+
+var text_layer = svg
+    .append('g')
+    .attr('class', 'layer')
+    .attr('id', 'text-layer');
 
 var search_layer = svg
     .append('g')
@@ -253,7 +253,7 @@ function loadAndDraw(nodeURL, linkURL) {
                         setHighlights(d, this)
                     }
                     d3.selectAll("#highlight-layer .link").style("pointer-events", "all");
-
+                    drawNames();
                 })
                 .sort(function (a, b) { // Draw smaller nodes above
                     return b.total_out - a.total_out
@@ -325,6 +325,7 @@ function setAdj(link_ary) {
         // adjlist[d.target.index + "-" + d.source.index] = true; //Directional Graph
     });
 }
+
 
 function updateNodeData(node_data, link_data) {
     nodes = node_layer.selectAll('.node');
@@ -420,14 +421,14 @@ function nodeOutFunction() {
     }
     highlight_layer.select('#current-node').remove()
 }
-function highlightedLinkOver(d){
+function highlightedLinkOver(d) {
     d3.select(this).style('stroke', 'yellow');
     link_tooltip.style("visibility", "visible")
-    .html(() => {
-        const content = `<strong>Source:</strong> <span>${d.source.sub}</span><br><strong>Target:</strong> <span>${d.target.sub}</span><br><strong>Amount: ${d.n}</strong>`
-        
-        return content;
-    })
+        .html(() => {
+            const content = `<strong>Source:</strong> <span>${d.source.sub}</span><br><strong>Target:</strong> <span>${d.target.sub}</span><br><strong>Amount: ${d.n}</strong>`
+
+            return content;
+        })
 }
 
 
@@ -471,10 +472,10 @@ function setHighlights(d) {
         d.style('stroke-width', function (f) {
             return Number(d3.select(this).style('stroke-width')) + 0.2
         })
-        .style('stroke', getLinkColor[link_sent_state])
-        .on('mouseover', highlightedLinkOver)
-        .on('mousemove', () => link_tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
-        .on('mouseout', function(){link_tooltip.style('visibility', 'hidden'); d3.select(this).style("stroke", "#aaa")})
+            .style('stroke', getLinkColor[link_sent_state])
+            .on('mouseover', highlightedLinkOver)
+            .on('mousemove', () => link_tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+            .on('mouseout', function () { link_tooltip.style('visibility', 'hidden'); d3.select(this).style("stroke", "#aaa") })
     })
 
     cloneElements(highlight_nodes, '#highlight-layer');
@@ -499,15 +500,31 @@ tooltip = d3.select(".wrapper").append("div")
     .text("");
 
 link_tooltip = d3.select(".wrapper").append("div")
-.attr("class", "mouse-tooltip")
-.style("position", "absolute")
-.style("visibility", "hidden")
-.text("");
+    .attr("class", "mouse-tooltip")
+    .style("position", "absolute")
+    .style("visibility", "hidden")
+    .text("");
 
 // Determine if two nodes are neighbors
 function neigh(a, b) {
     return a == b || adjlist[a + "-" + b];
 }
+
+function drawNames() {
+    $('#text-layer').empty();
+    highlight_layer.selectAll('.node')
+    .each(function(d){
+        console.log(d)
+        text_layer.append('text').datum(d)
+        .attr('x', (d)=> xScale(d.x))
+        .attr('y', (d)=> yScale(d.y + 15))
+        .attr('fill', 'white')
+        // .attr('text-anchor', 'middle')
+        .attr('font-size', '0.2rem')
+        .text((d) => d.sub)
+    })
+}
+
 
 
 // Drag Behaviour (Not Necessary Currently)
@@ -634,7 +651,7 @@ function updateSentiment(s) {
     updateNodeData(node_work, link_work)
     updateGraph(null, link_work_trunc);
     updateNodeSize();
-    if (clicked_node){
+    if (clicked_node) {
         clearHighlights()
         setHighlights()
     }
@@ -724,7 +741,7 @@ function setSearch(ary) {
         console.log('Selection: ' + suggestion);
         highlightSearchNodes([suggestion]);
     });
-    d3.select('#search-input').on('change', function(){
+    d3.select('#search-input').on('change', function () {
         highlightSearchNodes([suggestion]);
     })
 
