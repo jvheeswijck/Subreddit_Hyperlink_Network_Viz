@@ -10,7 +10,7 @@
 ## To-Do
 __updateNodes Function__  
 
-__Date Range Selector__  
+__Date Range Selector__  (Done)
 + Update the graph code
 
 __Sunburst Selectors__  
@@ -20,11 +20,11 @@ __Sunburst Selectors__
 __Tooltip Info__
 + Bottom left boxes displaying statistics and highlighted node information
 
-__Subreddit Tooltip Names of Highlighted__  
+__Subreddit Tooltip Names of Highlighted__  (Done but need size and overlap changes)
 
 __Subreddit Names when Zoomed X amount__  
 
-__Custom area labeling overlay on toggle__  
+__Custom area labeling overlay on toggle__  (No time to implement)
 + Custom area shapes and labels for topics like football, soccer, technology, etc
 
 __Subreddit Level view__  
@@ -38,7 +38,6 @@ __In-Depth Information on the Right Sidebar__
 
 __Data Filters and Toggles on the Left Sidebar__  
 + In/Out Links (for Subreddit View only)
-+ Maybe LIWC filtering with range-sliders (Highly Optional)
 
 __Info Display Toggles__  
 + Node Color Mode
