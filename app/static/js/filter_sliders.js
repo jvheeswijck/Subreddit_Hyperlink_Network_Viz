@@ -45,13 +45,13 @@ sent_slider.noUiSlider.on('update', function () {
 sent_slider.noUiSlider.on('change', function () {
     let val = Number(sent_slider.noUiSlider.get())
     if (val == 0) {
-        updateSentiment("neg")
+        updateSentiment("-1")
         // d3.selectAll('#link-layer .link').transition('color').delay(1000).duration(500).style('stroke', color_neg)
     } else if (val == 1) {
         updateSentiment("both")
         // d3.selectAll('#link-layer .link').transition('color').delay(1000).duration(500).style('stroke', color_neut)
     } else {
-        updateSentiment("pos")
+        updateSentiment("1")
         // d3.selectAll('#link-layer .link').transition('color').delay(1000).duration(500).style('stroke', color_pos)
     }
 })
@@ -92,6 +92,7 @@ highlight_slider.noUiSlider.on('change', function () {
     if (clicked_node != null) {
         clearHighlights();
         setHighlights();
+        drawNames();
     }
 })
 

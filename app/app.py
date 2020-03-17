@@ -119,26 +119,32 @@ def get_nodes():
     points = df_points[df_points['sub'].map(lambda x: x in sub_set)]
     return prepare_csv(points)
 
-@app.route("/links",methods=["GET","POST"])
+@app.route("/links",methods=["GET"])
 def get_links():
-    links = compute_links(df_all)
+    df = df_all
+    start = request.args.get('start_date')
+    if start:
+        start = dt.datetime.fromisoformat(start)
+        end = dt.datetime.fromisoformat(request.args.get('end_date'))
+        df = df[(df.timestamp >= start) & (df.timestamp <= end)]
+    links = compute_links(df)
     return prepare_csv(links.iloc[:])
 
 
 
-@app.route("/sentiment_nodes",methods=["GET","POST"])
-def get_sent_nodes():
-    if request.args.get('s') == 'pos':
-        links = compute_links(pos_rows)
-    elif request.args.get('s') == 'neg':
-        links = compute_links(neg_rows)
+# @app.route("/sentiment_nodes",methods=["GET","POST"])
+# def get_sent_nodes():
+#     if request.args.get('s') == 'pos':
+#         links = compute_links(pos_rows)
+#     elif request.args.get('s') == 'neg':
+#         links = compute_links(neg_rows)
 
-    links_trunc = links[:]
-    sub_set = set()
-    sub_set.update(links_trunc.source)
-    sub_set.update(links_trunc.target)
-    points = df_points[df_points['sub'].map(lambda x: x in sub_set)]
-    return prepare_csv(points)
+#     links_trunc = links[:]
+#     sub_set = set()
+#     sub_set.update(links_trunc.source)
+#     sub_set.update(links_trunc.target)
+#     points = df_points[df_points['sub'].map(lambda x: x in sub_set)]
+#     return prepare_csv(points)
 
 @app.route("/sentiment_links",methods=["GET","POST"])
 def get_sent_links():

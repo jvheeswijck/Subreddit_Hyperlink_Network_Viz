@@ -27,6 +27,8 @@ const line_width_max = 2,
 const min_line_opac = 0.1,
     max_line_opac = 0.7;
 
+var search_node_scale = 1;
+
 
 // Sentiment Colors
 // Interpolate red and blue
@@ -172,45 +174,12 @@ function loadAndDraw(nodeURL, linkURL) {
             node_master = data_node;
 
             // Calculate relevant node information
-            node_master.forEach(function (node) {
-                node.in_pos = 0;
-                node.out_pos = 0;
-                node.in_neg = 0;
-                node.out_neg = 0;
-                node.adj_src = [];
-                node.adj_trgt = [];
-                node.tags = new Set()
-                node.index = index;
-                index++;
-                Object.defineProperty(node, 'total_in', {
-                    get: function () { return this.in_pos + this.in_neg }
-                });
-                Object.defineProperty(node, 'total_out', {
-                    get: function () { return this.out_pos + this.out_neg }
-                })
-                nodeById.set(node.sub, node);
-            });
+            buildNodeData(node_master);
 
             // Build node-link relationships
-            link_master.forEach(function (link) {
-                link.source = nodeById.get(link.source);
-                link.target = nodeById.get(link.target);
-                link.n = Number(link.n)
+            buildLinkData(link_master);
+            link_master.sort(linkSort)
 
-                if (link.sentiment == "1") {
-                    link.source.out_pos += link.n
-                } else {
-                    link.source.out_neg += link.n
-                }
-                // node = nodeById.get(link.target);
-                if (link.sentiment == "1") {
-                    link.target.in_pos += link.n
-                } else {
-                    link.target.in_neg += link.n
-                }
-                link.source.adj_src.push(link);
-                link.target.adj_trgt.push(link);
-            });
             node_work = node_master
             link_work = link_master
             link_trunc = link_work.slice(0, link_limit)
@@ -322,7 +291,6 @@ function setAdj(link_ary) {
     adjlist = []
     link_ary.forEach(function (d) {
         adjlist[d.source.index + "-" + d.target.index] = true;
-        // adjlist[d.target.index + "-" + d.source.index] = true; //Directional Graph
     });
 }
 
@@ -357,6 +325,52 @@ function updateNodeData(node_data, link_data) {
 // Initialize graph
 loadAndDraw('/nodes', '/links');
 
+
+// Build the data fields
+function buildNodeData(node_ary){
+    let index = 0;
+    node_ary.forEach(function (node) {
+        node.in_pos = 0;
+        node.out_pos = 0;
+        node.in_neg = 0;
+        node.out_neg = 0;
+        node.adj_src = [];
+        node.adj_trgt = [];
+        node.tags = new Set()
+        node.index = index;
+        index++;
+        Object.defineProperty(node, 'total_in', {
+            get: function () { return this.in_pos + this.in_neg }
+        });
+        Object.defineProperty(node, 'total_out', {
+            get: function () { return this.out_pos + this.out_neg }
+        })
+        nodeById.set(node.sub, node);
+    });
+}
+
+// Attach node data to link data
+function buildLinkData(link_ary){
+    link_ary.forEach(function (link) {
+        link.source = nodeById.get(link.source);
+        link.target = nodeById.get(link.target);
+        link.n = Number(link.n)
+
+        if (link.sentiment == "1") {
+            link.source.out_pos += link.n
+        } else {
+            link.source.out_neg += link.n
+        }
+        // node = nodeById.get(link.target);
+        if (link.sentiment == "1") {
+            link.target.in_pos += link.n
+        } else {
+            link.target.in_neg += link.n
+        }
+        link.source.adj_src.push(link);
+        link.target.adj_trgt.push(link);
+    });
+}
 
 function keyLinks(d) {
     return `${d.source.sub}-${d.target.sub}`
@@ -627,11 +641,11 @@ function updateGraph(node_data, link_data) {
 
 // May be adjusted to new filter workflow
 function updateSentiment(s) {
-    if (s == "pos") {
+    if (s == "1") {
         link_work = link_master.filter(function (d) {
             return d.sentiment == "1"
         })
-    } else if (s == "neg") {
+    } else if (s == "-1") {
         link_work = link_master.filter(function (d) {
             return d.sentiment == "-1"
         })
@@ -639,15 +653,12 @@ function updateSentiment(s) {
         link_work = link_master;
     }
 
-    link_work = link_work.sort(function (a, b) {
-        return b.n - a.n
-    })
-
+    link_work = link_work.sort(linkSort)
     link_work_trunc = link_work.slice(0, link_limit)
     setAdj(link_work_trunc)
 
-    value_map = { 'pos': "1", 'both': "both", 'neg': '-1' }
-    link_sent_state = value_map[s];
+    // value_map = { 'pos': "1", 'both': "both", 'neg': '-1' }
+    link_sent_state = s;
     updateNodeData(node_work, link_work)
     updateGraph(null, link_work_trunc);
     updateNodeSize();
@@ -659,6 +670,10 @@ function updateSentiment(s) {
 
 function drawLinkedTooltips() {
 
+}
+
+function linkSort(a, b) {
+    return b.n - a.n
 }
 
 // Performance testing
@@ -730,7 +745,7 @@ function setSearch(ary) {
     $('.typeahead').typeahead({
         hint: true,
         highlight: true, /* Enable substring highlighting */
-        minLength: 1, /* Specify minimum characters required for showing result */
+        minLength: 2, /* Specify minimum characters required for showing result */
         // limit: 4
     },
         {
@@ -741,12 +756,16 @@ function setSearch(ary) {
         console.log('Selection: ' + suggestion);
         highlightSearchNodes([suggestion]);
     });
-    d3.select('#search-input').on('change', function () {
-        highlightSearchNodes([suggestion]);
-    })
+    // d3.select('#search-input').on('change', function () {
+    //     highlightSearchNodes([suggestion]);
+
+    //     if (search_timeout){
+    //         setTimeout(highlightSearchNodes, 1000, [suggestion])
+    //     }
+    // })
 
 }
-
+var search_timeout = false;
 var subs_suggestions = null;
 
 
@@ -760,6 +779,14 @@ function highlightSearchNodes(data) {
     cloneElements(query_elements, '#search-layer', function (d) {
         d.style('fill', 'blue')
         d.style('opacity', 0.5)
+        d.transition('expand')
+        .duration(350)
+        .attr('r', 12)
+
+        d.transition('contract')
+        .duration(350)
+        .delay(500)
+        .attr('r', (f) => nodeScale(search_node_scale*f[node_size_type]))
     })
 }
 
