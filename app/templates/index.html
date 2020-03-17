@@ -125,4 +125,40 @@
 <script src="../static/js/main.js"></script>
 
 
+
+<link href="../static/css/bootstrap-tour-standalone.min.css" rel="stylesheet">
+...
+<script src="../static/js/jquery-3.4.1.min.js"></script>
+<script src="../static/js/bootstrap-tour-standalone.min.js"></script>
+
+
+
+<script>
+var tour = new Tour({
+  steps: [
+  {
+    element: "#search-input",
+    title: "Search Bar",
+    content: "Type here to search any SubReddit"
+  },
+  {
+    element: ".noUi-connect noUi-draggable",
+    title: "LineScent",
+    content: "Timeline of Reddits"
+  },
+  {
+    element: ".arrow-right",
+    title: "Arrow",
+    content: "Click here for more Filters"
+  }
+]});
+
+// Initialize the tour
+tour.init();
+
+// Start the tour
+tour.start();
+</script>
+
+
 {% endblock %}
