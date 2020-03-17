@@ -125,4 +125,35 @@
 <script src="../static/js/main.js"></script>
 
 
+
+<link href="../static/css/bootstrap-tour-standalone.min.css" rel="stylesheet">
+...
+<script src="../static/js/jquery-3.4.1.min.js"></script>
+<script src="../static/js/bootstrap-tour-standalone.min.js"></script>
+
+
+
+<script>
+var tour = new Tour({
+  steps: [
+  {
+    element: "#svg-div",
+    title: "Title of the SVG",
+    content: "Content of SVG"
+  },
+  {
+    element: ".layer",
+    title: "Title of the layer",
+    content: "Content of layer"
+  }
+]});
+
+// Initialize the tour
+tour.init();
+
+// Start the tour
+tour.start();
+</script>
+
+
 {% endblock %}
