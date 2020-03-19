@@ -17,6 +17,5 @@ tag_tree = null;
 d3.json('/data?g=tag_graph').then(function(d){
     tag_tree = d3.hierarchy(d);
     tag_tree.sum((d) => d.values.length)
-    tag_tree.each(()=>console.log('test'))
-
+    // tag_tree.each(()=>console.log('test'))
 });
