@@ -68,13 +68,7 @@
   <!-- Search Bar -->
   <div class='d-flex' id='search-box-wrapper'>
     <div class="bs-example">
-      <input type="text" class="typeahead tt-query" autocomplete="off" spellcheck="false" id='search-input'>
-    </div>
-    <div class="x-close" id='clear-search'>
-      <i class="far fa-times-circle"></i>
-      <a href="#">
-        <span class="glyphicon glyphicon-remove"></span>
-      </a>
+      <input type="text" class="typeahead tt-query" autocomplete="on" spellcheck="false" id='search-input'>
     </div>
    
   </div>
@@ -85,10 +79,23 @@
     <div id="range-volume-scent"></div>
     <div id="range-slider"></div>
   </div>
+
+  <!-- Node Tooltip -->
+  <div class='node-tooltip-wrapper'>
+    <div class="mouse-tooltip node-tooltip" id="node-tooltip" style="display: block;">
+      <div style="display: inline-block;" id='node-tooltip-title'>Title</div>
+      <div style="display: inline-block;" id='node-tooltip-numbers'></div>     
+      <!-- <div style="display: inline;" id='node-tooltip-ranks'></div> -->
+    </div>
+  </div>
 </div>
 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2960b177a3465932b41dad730bf963ecc73235c5
 <!-- Rightbar -->
 <div class="shadow active" id="rightbar">
   <div class="collapse-spot-right">
@@ -101,8 +108,9 @@
 
 
 <script>
-  const start_date = new Date("{{ first_link }}");
-  const end_date = new Date("{{ last_link }}");
+  var start_date = new Date("{{ first_link }}");
+  var end_date = new Date("{{ last_link }}");
+  var total_days = (end_date - start_date) / (1000 * 60 * 60 * 24);
 </script>
 <script src="../static/js/main_graph.js"></script>
 <script src="../static/js/line_scent.js"></script>
@@ -135,6 +143,7 @@
 
 
 <script>
+<<<<<<< HEAD
 var tour = new Tour({
   delay: 2000
 });
@@ -160,6 +169,33 @@ tour.init();
 
 // Start the tour
 tour.start();
+=======
+  var tour = new Tour({
+    steps: [
+      {
+        element: "#search-input",
+        title: "Search Bar",
+        content: "Type here to search any SubReddit"
+      },
+      {
+        element: ".noUi-connect noUi-draggable",
+        title: "LineScent",
+        content: "Timeline of Reddits"
+      },
+      {
+        element: ".arrow-right",
+        title: "Arrow",
+        content: "Click here for more Filters"
+      }
+    ]
+  });
+
+  // Initialize the tour
+  tour.init();
+
+  // Start the tour
+  tour.start();
+>>>>>>> 2960b177a3465932b41dad730bf963ecc73235c5
 </script>
 
 

@@ -84,6 +84,7 @@ var background_area = svg
 background_area.on('click', () => {
     clicked_node = null;
     d3.selectAll("#highlight-layer .link").style("pointer-events", "none");
+    node_tooltip.style("visibility", "hidden")
     nodeOutFunction();
     $('#text-layer').empty(); // May adjust this
 })
@@ -221,6 +222,7 @@ function loadAndDraw(nodeURL, linkURL) {
                         clicked_node = this;
                         setHighlights(d, this)
                     }
+                    updateNodeTooltip(d);
                     d3.selectAll("#highlight-layer .link").style("pointer-events", "all");
                     drawNames();
                 })
@@ -327,7 +329,7 @@ loadAndDraw('/nodes', '/links');
 
 
 // Build the data fields
-function buildNodeData(node_ary){
+function buildNodeData(node_ary) {
     let index = 0;
     node_ary.forEach(function (node) {
         node.in_pos = 0;
@@ -350,7 +352,7 @@ function buildNodeData(node_ary){
 }
 
 // Attach node data to link data
-function buildLinkData(link_ary){
+function buildLinkData(link_ary) {
     link_ary.forEach(function (link) {
         link.source = nodeById.get(link.source);
         link.target = nodeById.get(link.target);
@@ -419,11 +421,19 @@ function nodeOverFunction(d) {
     if (clicked_node == null) {
         setHighlights(d, this)
     }
+    node_tooltip.style("visibility", "visible")
+    if (clicked_node == null) {
+        updateNodeTooltip(d)
+    }
+
+    if (clicked_node == null) {
+        setHighlights(d, this)
+    }
 
     selected_node = this.cloneNode()
     d3.select(selected_node)
         .attr('id', 'current-node')
-        .style('fill', highlight_node_color_primary)
+        .style('fill', "DarkRed")
     highlight_layer.node().appendChild(selected_node)
 };
 
@@ -432,6 +442,7 @@ function nodeOutFunction() {
     tooltip.style("visibility", "hidden")
     if (clicked_node == null) {
         clearHighlights();
+        node_tooltip.style("visibility", "hidden")
     }
     highlight_layer.select('#current-node').remove()
 }
@@ -445,7 +456,60 @@ function highlightedLinkOver(d) {
         })
 }
 
+function updateNodeTooltip(d) {
+    node_tooltip.select("#node-tooltip-title").html(() => {
+        const title = `<strong>${d.sub}</strong>`
+        return title
+    })
+    node_tooltip.select("#node-tooltip-numbers").html(() => {
+        let stat_content = `<table cellpadding="4" border="1" style="width:100%">
+                                <tr>
+                                <th colspan="4" align="center"><strong>Total</strong></th>
+                                <th colspan="4" align="center"><strong>Daily Average</strong></th> 
+                                </tr>
+                                <tr>
+                                <td>+ Out:</td>
+                                <td>${d.out_pos}</td>
+                                <td>+ In:</td>
+                                <td>${d.in_pos}</td>
+                                <td>+ Out:</td>
+                                <td>${(d.out_pos / total_days).toFixed(1)}</td>
+                                <td>+ In:</td>
+                                <td>${(d.in_pos / total_days).toFixed(1)}</td>
+                                </tr>
+                                <tr>
+                                <td>- Out:</td>
+                                <td>${d.out_neg}</td>
+                                <td>- In:</td>
+                                <td>${d.in_neg}</td>
+                                <td>- Out:</td>
+                                <td>${(d.out_neg / total_days).toFixed(1)}</td>
+                                <td>- In:</td>
+                                <td>${(d.in_neg / total_days).toFixed(1)}</td>
+                                </tr>
+                            </table>`;
+        return stat_content
+    })
+    // node_tooltip.select("#node-tooltip-ranks").html(() => {
+    //     let rank_content = `<table cellpadding="4" border="1" style="width:100%">
+    //     <tr>
+    //     <th colspan="2" align="center"><strong>Most Linked</strong></th>
+    //     <th colspan="2" align="center"><strong>Most Referenced From</strong></th> 
+    //     </tr>
+    //     <tr>`
+    //     let row_data = []
 
+    //     for (const e of d.adj_src.slice(0,3)) {
+    //         e.source.sub, e.n
+            
+    //     }
+    //     for (const e of d.adj_trgt.slice(0,3)) {
+    //         console.log(element);
+    //     }
+
+    //     return rank_content
+    // })
+}
 
 // Highlighting Functionality -> Can refactor
 function setHighlights(d) {
@@ -478,7 +542,6 @@ function setHighlights(d) {
             highlight_nodes = nodes
                 .filter((d) => neigh(index, d.index));
         }
-
     }
 
     // Insert Elements into Highlight Layer
@@ -513,8 +576,32 @@ tooltip = d3.select(".wrapper").append("div")
     .style("visibility", "hidden")
     .text("");
 
+node_tooltip = d3.select("#node-tooltip")
+// .append('div')
+// .attr('class', 'node-tooltip-wrapper')
+// .style("position", "relative")
+
+// .append("div")
+// .attr("class", "mouse-tooltip node-tooltip")
+// .attr('id', "node-tooltip")
+// // .style("position", "absolute")
+// .style("visibility", "visible")
+// .text("");
+
+// node_tooltip.html(() => {
+//     let row1 = "<div class='row' id='tooltip-title'> <div>";
+//     row1 += 
+//     "<div class='row' id='tooltip-numbers'> <div>"
+//     "<div class='row' id='tooltip-ranks'> <div>"
+
+
+//     return
+// })
+
+
 link_tooltip = d3.select(".wrapper").append("div")
     .attr("class", "mouse-tooltip")
+    .attr("id", "link-tooltip")
     .style("position", "absolute")
     .style("visibility", "hidden")
     .text("");
@@ -527,16 +614,15 @@ function neigh(a, b) {
 function drawNames() {
     $('#text-layer').empty();
     highlight_layer.selectAll('.node')
-    .each(function(d){
-        console.log(d)
-        text_layer.append('text').datum(d)
-        .attr('x', (d)=> xScale(d.x))
-        .attr('y', (d)=> yScale(d.y + 15))
-        .attr('fill', 'white')
-        // .attr('text-anchor', 'middle')
-        .attr('font-size', '0.2rem')
-        .text((d) => d.sub)
-    })
+        .each(function (d) {
+            text_layer.append('text').datum(d)
+                .attr('x', (d) => xScale(d.x))
+                .attr('y', (d) => yScale(d.y + 15))
+                .attr('fill', 'white')
+                // .attr('text-anchor', 'middle')
+                .attr('font-size', '0.3rem')
+                .text((d) => d.sub)
+        })
 }
 
 
@@ -780,13 +866,13 @@ function highlightSearchNodes(data) {
         d.style('fill', 'blue')
         d.style('opacity', 0.5)
         d.transition('expand')
-        .duration(350)
-        .attr('r', 12)
+            .duration(350)
+            .attr('r', 12)
 
         d.transition('contract')
-        .duration(350)
-        .delay(500)
-        .attr('r', (f) => nodeScale(search_node_scale*f[node_size_type]))
+            .duration(350)
+            .delay(500)
+            .attr('r', (f) => nodeScale(search_node_scale * f[node_size_type]))
     })
 }
 

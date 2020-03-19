@@ -57,5 +57,8 @@ function getSliderDates() {
     let [start, end] = monthSlider.noUiSlider.get();
     start = new Date(Math.round(start));
     end = new Date(Math.round(end))
+    start_date = start;
+    end_date = end;
+    total_days = (end_date - start_date) / (1000 * 60 *60 *24);
     return [start, end]
 }
