@@ -23,8 +23,7 @@
 
 // });
 
-/////////////////////////
-var radius = (Math.min(width, height) / 3) -10 ; //- 10
+var radius = (Math.min(width, height) / 3) -12 ; //- 10
 
 var formatNumber = d3.format(",d");
 
@@ -53,7 +52,9 @@ var svg = d3.select('#svg-sunburst')
     //.attr("transform", "translate(" + width/2 + "," + (height/2) + ")");
 
 tag_tree = null;
-<<<<<<< HEAD
+
+
+
 d3.json('/data?g=tag_graph').then(function (d) {
   //console.log(d);
   tag_tree = d3.hierarchy(d);
@@ -96,15 +97,8 @@ function click(d) {
     console.log(d.data.name)
     console.log(d.data.children)
     console.log(link_work)
-    // updateNodeData(d.data.children,link_work)
+
 
 }
 
 d3.select(self.frameElement).style("height", height + "px");
-=======
-d3.json('/data?g=tag_graph').then(function(d){
-    tag_tree = d3.hierarchy(d);
-    tag_tree.sum((d) => d.values.length)
-    // tag_tree.each(()=>console.log('test'))
-});
->>>>>>> 2960b177a3465932b41dad730bf963ecc73235c5
