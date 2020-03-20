@@ -153,17 +153,52 @@ tour.addStep ({
   //   title: "LineScent",
   //   content: "Timeline of Reddits"
   // },
-  tour.addStep ({
-    element: ".arrow-right",
-    title: "Arrow",
-    content: "Click here for more Filters"
-  });
+  //tour.addStep ({
+  //  element: ".arrow-right",
+  //  title: "Arrow",
+  //  content: "Click here for more Filters"
+  //});
 
 // Initialize the tour
 tour.init();
 
 // Start the tour
 tour.start();
+  var tour = new Tour({
+    steps: [
+      {
+        element: "#search-input",
+        title: "Search Bar",
+        content: "Type here to search any SubReddit"
+      },
+      {
+        element: ".arrow-right",
+        title: "Arrow",
+        content: "Click here for more Filters"
+      },
+      {
+        element: "#range-volume-scent",
+        title: "Scented Bar",
+        content: "Drag these bars to get a time view of subreddits"
+      },
+      {
+        element: "#node-tooltip",
+        title: "Nodes",
+        content: "These are the Nodes representing subreddits"
+      },
+      {
+        element: "#node-tooltip-title",
+        title: "Links",
+        content: "These are the links between subreddits"
+      }
+    ]
+  });
+
+  // Initialize the tour
+  tour.init();
+
+  // Start the tour
+  tour.start();
 </script>
 
 
