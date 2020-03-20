@@ -130,14 +130,14 @@ nodesize_slider.noUiSlider.on('update', function () {
     }
 });
 
-noUiSlider.create(nodecolor_slider, {
-    start: [0],
-    step: 1,
-    range: {
-        'min': 0,
-        'max': 1
-    },
-    behaviour: 'tap-drag',
-    animate: true,
-    animationDuration: 100,
-});
+// noUiSlider.create(nodecolor_slider, {
+//     start: [0],
+//     step: 1,
+//     range: {
+//         'min': 0,
+//         'max': 1
+//     },
+//     behaviour: 'tap-drag',
+//     animate: true,
+//     animationDuration: 100,
+// });
