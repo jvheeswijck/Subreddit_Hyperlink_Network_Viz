@@ -8,24 +8,15 @@
 - Basic filtering on sentiment -> May need to adjust filtering logic for multiple filtering of various attributes
 
 ## To-Do
-__updateNodes Function__  
-
-__Date Range Selector__  (Done)
-+ Update the graph code
-
 __Sunburst Selectors__  
-+ Implement selectors using Sunbursts
-+ Requires TWO: One for source nodes, one for target nodes
++ Implement second sunburst
 
 __Tooltip Info__
-+ Bottom left boxes displaying statistics and highlighted node information
++ Include Subreddit Ranking
 
 __Subreddit Tooltip Names of Highlighted__  (Done but need size and overlap changes)
 
 __Subreddit Names when Zoomed X amount__  
-
-__Custom area labeling overlay on toggle__  (No time to implement)
-+ Custom area shapes and labels for topics like football, soccer, technology, etc
 
 __Subreddit Level view__  
 + Double click a node to enter subreddit view
@@ -39,12 +30,8 @@ __In-Depth Information on the Right Sidebar__
 __Data Filters and Toggles on the Left Sidebar__  
 + In/Out Links (for Subreddit View only)
 
-__Info Display Toggles__  
-+ Node Color Mode
-
 __Node Search Function (95% done)__  
-- Implement close button  
-- Implement enter key-press to refine to single selection
+- Fix load bug
 
 __New User Tutorial__  
 + Sequence of tooltips guiding functionality
