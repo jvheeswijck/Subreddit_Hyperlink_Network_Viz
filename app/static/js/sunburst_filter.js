@@ -204,8 +204,8 @@ function setCatHighlights(tag){
     $('#search-layer').empty();
     query_elements = nodes.filter((d) => tag_filter[tag].has(d['sub']))
     cloneElements(query_elements, '#search-layer', function (d) {
-        d.style('fill', 'blue')
-        d.style('opacity', 0.5)
+        d.style('fill', 'darkred')
+        d.style('opacity', 1)
         d.transition('expand')
             .duration(350)
             .attr('r', 12)
