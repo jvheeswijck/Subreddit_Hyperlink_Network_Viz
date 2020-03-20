@@ -168,11 +168,16 @@ function clicked(p) {
     // Update Graph Code
     // p = p.parent || root
     // console.log(p.data.name)
+
     if (p.data.name == 'root'){
         node_work = node_master
+        nodes.style('fill', default_node_color)
     } else {
-        node_work = node_master.filter((d) => tag_filter[p.data.name].has(d['sub']))
-    } 
+        tag = p.data.name;
+        node_work = node_master.filter((d) => tag_filter[p.data.name].has(d['sub']));
+        nodes.style('fill', default_node_color)
+        nodes.filter((d) => tag_filter[tag].has(d['sub'])).style('fill', 'deeppink');
+    }
     node_set = new Set(node_work.map((d) => d.sub))
     updateSentiment(link_sent_state);
 }
@@ -200,12 +205,13 @@ partition = data => {
         (root);
 }
 
-function setCatHighlights(tag){
+function setCatHighlights(tag, arc_element){
+    cat_color = arc_element.attr('fill')
     $('#search-layer').empty();
     query_elements = nodes.filter((d) => tag_filter[tag].has(d['sub']))
     cloneElements(query_elements, '#search-layer', function (d) {
-        d.style('fill', 'darkred')
-        d.style('opacity', 1)
+        d.style('fill', "DEEPPINK")
+        d.style('opacity', 0.8)
         d.transition('expand')
             .duration(350)
             .attr('r', 12)
@@ -218,8 +224,9 @@ function setCatHighlights(tag){
 }
 
 function arcOver(d) {
-    d3.select(this).attr("fill-opacity", 1)
-    setCatHighlights(d.data.name)
+    arc_element = d3.select(this)
+    arc_element.attr("fill-opacity", 1)
+    setCatHighlights(d.data.name, arc_element)
 }
 
 function arcOut(d) {
