@@ -233,7 +233,7 @@ function loadAndDraw(nodeURL, linkURL) {
                 })
 
             // Animate Nodes
-            nodes.transition()
+            nodes.transition('first_draw')
                 .duration(300)
                 .delay((d, i) => (i % 10) * 100)
                 .attr("r", (d) => nodeScale(d.total_out));
@@ -673,10 +673,8 @@ function updateNodes(s, nodeURL) {
 
 
 function updateGraph(node_data, link_data) {
-    console.log(!node_data == null)
     // Node Update
     if (node_data) {
-        console.log('updating nodes')
         nodes = node_layer
             .selectAll('.node')
             .data(node_data, keyNodes)
@@ -715,20 +713,20 @@ function updateGraph(node_data, link_data) {
             .sort(function (a, b) { // Draw smaller nodes above
                 return b.total_out - a.total_out
             })
+
         nodes = node_layer
             .selectAll('.node')
 
-        nodes.transition('add')
-            .duration(300)
-            .delay((d, i) => (i % 10) * 100)
-            .attr("r", (d) => nodeScale(d.total_out));
+        // nodes.transition('add')
+        //     .duration(300)
+        //     .delay((d, i) => (i % 10) * 100)
+        //     .attr("r", (d) => nodeScale(d[node_size_type]));
 
         // Animate Nodes
 
     }
 
 
-    console.log('Redrawing Links')
     // Link Update
     links = link_layer
         .selectAll('.link')
@@ -798,15 +796,24 @@ function updateSentiment(s) {
         link_work = link_master;
     }
 
-    link_work = link_work.filter((d) => node_set.has(d.source.sub) || node_set.has(d.target.sub))
+    link_work = link_work.filter((d) => node_set.has(d.source.sub))// || node_set.has(d.target.sub))
     link_work = link_work.sort(linkSort)
     link_work_trunc = link_work.slice(0, link_limit)
     setAdj(link_work_trunc)
 
     // value_map = { 'pos': "1", 'both': "both", 'neg': '-1' }
     link_sent_state = s;
-    updateNodeData(node_work, link_work)
-    updateGraph(node_work, link_work_trunc);
+    
+
+    // This is a temporary fix
+    temp_filter = new Set();
+    link_work.forEach(function(d){
+        temp_filter.add(d.source.sub)
+        temp_filter.add(d.target.sub)
+    });
+    node_work_temp = node_master.filter((d) => temp_filter.has(d['sub']))
+    updateNodeData(node_work_temp, link_work);
+    updateGraph(node_work_temp, link_work_trunc);
     updateNodeSize();
     if (clicked_node) {
         clearHighlights()

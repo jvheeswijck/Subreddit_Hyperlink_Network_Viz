@@ -123,7 +123,6 @@ d3.json('/data?g=tag_graph').then(function (data) {
 
 function clicked(p) {
 
-    console.log(p)
     parent.datum(p.parent || root);
     parent_label.datum(p || root);
 
