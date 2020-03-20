@@ -108,6 +108,8 @@
   var end_date = new Date("{{ last_link }}");
   var total_days = (end_date - start_date) / (1000 * 60 * 60 * 24);
 </script>
+
+<script src="../static/dist/js/typeahead.bundle.js"></script>
 <script src="../static/js/main_graph.js"></script>
 <script src="../static/js/line_scent.js"></script>
 
@@ -132,10 +134,11 @@
 
 
 <link href="../static/css/bootstrap-tour-standalone.min.css" rel="stylesheet">
-...
-<script src="../static/js/jquery-3.4.1.min.js"></script>
 <script src="../static/js/bootstrap-tour-standalone.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@observablehq/stdlib"></script>
+
+<!-- <script src="../static/js/jquery-3.4.1.min.js"></script> -->
+
 
 
 <script>
@@ -169,12 +172,12 @@ tour.start();
       {
         element: "#search-input",
         title: "Search Bar",
-        content: "Type here to search any SubReddit"
+        content: "Type here to locate a subreddit"
       },
       {
         element: ".arrow-right",
         title: "Arrow",
-        content: "Click here for more Filters"
+        content: "Click here for filters and information changes"
       },
       {
         element: "#range-volume-scent",
