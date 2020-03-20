@@ -163,6 +163,7 @@ var link_master = null;
 var node_master = null;
 var link_work = null;
 var node_work = null;
+var node_set = null;
 var nodeById = d3.map();
 
 // Load and Draw Data
@@ -182,6 +183,7 @@ function loadAndDraw(nodeURL, linkURL) {
             link_master.sort(linkSort)
 
             node_work = node_master
+            node_set = new Set(node_work.map((d) => d.sub))
             link_work = link_master
             link_trunc = link_work.slice(0, link_limit)
 
@@ -202,7 +204,7 @@ function loadAndDraw(nodeURL, linkURL) {
 
             // Draw Nodes
             nodes = node_layer.selectAll('.node')
-                .data(node_work)
+                .data(node_work, keyNodes)
                 .enter()
                 .append("circle")
                 .attr("cx", (d) => xScale(d.x))
@@ -501,7 +503,7 @@ function updateNodeTooltip(d) {
 
     //     for (const e of d.adj_src.slice(0,3)) {
     //         e.source.sub, e.n
-            
+
     //     }
     //     for (const e of d.adj_trgt.slice(0,3)) {
     //         console.log(element);
@@ -521,7 +523,12 @@ function setHighlights(d) {
     }
 
     let high_map = { 'in': 'target', 'out': 'source' }
-    // Might be a nicer way to maket his
+
+
+    links = link_layer
+        .selectAll('.link')
+    nodes = node_layer
+        .selectAll('.node')
     if (link_highlight_type == "both") {
         highlight_links = links
             .filter(function (d) {
@@ -666,11 +673,62 @@ function updateNodes(s, nodeURL) {
 
 
 function updateGraph(node_data, link_data) {
-
+    console.log(!node_data == null)
     // Node Update
+    if (node_data) {
+        console.log('updating nodes')
+        nodes = node_layer
+            .selectAll('.node')
+            .data(node_data, keyNodes)
+
+        nodes.exit() // Remove old data
+            .transition('remove')
+            .duration(400)
+            .delay((d, i) => (i % 10) * 50)
+            .attr('r', 0)
+            .remove()
+
+        nodes
+            .enter()
+            .append("circle")
+            .attr("cx", (d) => xScale(d.x))
+            .attr("cy", (d) => yScale(d.y))
+            .attr("class", "node")
+            .attr("r", 0)
+            .style("fill", default_node_color)
+            .style("opacity", default_node_opacity)
+            .on('mouseover', nodeOverFunction)
+            .on('mousemove', () => tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"))
+            .on('mouseout', nodeOutFunction)
+            .on('click', function (d) { // Select Behaviour
+                if (clicked_node == null) {
+                    clicked_node = this;
+                } else {
+                    clearHighlights()
+                    clicked_node = this;
+                    setHighlights(d, this)
+                }
+                updateNodeTooltip(d);
+                d3.selectAll("#highlight-layer .link").style("pointer-events", "all");
+                drawNames();
+            })
+            .sort(function (a, b) { // Draw smaller nodes above
+                return b.total_out - a.total_out
+            })
+        nodes = node_layer
+            .selectAll('.node')
+
+        nodes.transition('add')
+            .duration(300)
+            .delay((d, i) => (i % 10) * 100)
+            .attr("r", (d) => nodeScale(d.total_out));
+
+        // Animate Nodes
+
+    }
 
 
-
+    console.log('Redrawing Links')
     // Link Update
     links = link_layer
         .selectAll('.link')
@@ -725,6 +783,7 @@ function updateGraph(node_data, link_data) {
     //     .style("stroke-width", (d) => lineScale(d.n))
 }
 
+
 // May be adjusted to new filter workflow
 function updateSentiment(s) {
     if (s == "1") {
@@ -739,6 +798,7 @@ function updateSentiment(s) {
         link_work = link_master;
     }
 
+    link_work = link_work.filter((d) => node_set.has(d.source.sub) || node_set.has(d.target.sub))
     link_work = link_work.sort(linkSort)
     link_work_trunc = link_work.slice(0, link_limit)
     setAdj(link_work_trunc)
@@ -746,7 +806,7 @@ function updateSentiment(s) {
     // value_map = { 'pos': "1", 'both': "both", 'neg': '-1' }
     link_sent_state = s;
     updateNodeData(node_work, link_work)
-    updateGraph(null, link_work_trunc);
+    updateGraph(node_work, link_work_trunc);
     updateNodeSize();
     if (clicked_node) {
         clearHighlights()

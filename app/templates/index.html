@@ -64,6 +64,7 @@
 
 <!-- Middle Content -->
 <div class="container" id="content">
+  <div id='svg-sunburst'></div>
 
   <!-- Search Bar -->
   <div class='d-flex' id='search-box-wrapper'>
@@ -91,11 +92,6 @@
 </div>
 
 
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 2960b177a3465932b41dad730bf963ecc73235c5
 <!-- Rightbar -->
 <div class="shadow active" id="rightbar">
   <div class="collapse-spot-right">
@@ -103,7 +99,7 @@
       <div class='arrow-left' id='right-collapse-arrow'></div>
     </button>
   </div>
-  <div id='svg-sunburst'></div>
+  <!-- <div id='svg-sunburst'></div> -->
 </div>
 
 
@@ -143,7 +139,6 @@
 
 
 <script>
-<<<<<<< HEAD
 var tour = new Tour({
   delay: 2000
 });
@@ -169,33 +164,6 @@ tour.init();
 
 // Start the tour
 tour.start();
-=======
-  var tour = new Tour({
-    steps: [
-      {
-        element: "#search-input",
-        title: "Search Bar",
-        content: "Type here to search any SubReddit"
-      },
-      {
-        element: ".noUi-connect noUi-draggable",
-        title: "LineScent",
-        content: "Timeline of Reddits"
-      },
-      {
-        element: ".arrow-right",
-        title: "Arrow",
-        content: "Click here for more Filters"
-      }
-    ]
-  });
-
-  // Initialize the tour
-  tour.init();
-
-  // Start the tour
-  tour.start();
->>>>>>> 2960b177a3465932b41dad730bf963ecc73235c5
 </script>
 
 

@@ -298,3 +298,14 @@ body {
 #search-input:focus {
     margin-top: 25px !important;
 } */
+
+/* Sunburst */
+#svg-sunburst {
+    display: block;
+    position: absolute;
+    float:right;
+    z-index: 200;
+    width: 300px;
+    height: 300px;
+    pointer-events: none;
+}
