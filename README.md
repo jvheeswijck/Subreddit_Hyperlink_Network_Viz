@@ -1,11 +1,19 @@
-# Info Viz: Visualizing Inter-Subbreddit Hyperlinking
-## What we did after the meeting of 27-02:
-- Encoding in size of the node
-- Adding links between nodes
-- Highlighting Behaviour
-- Click selection behaviour
-- Performance enhancements
-- Basic filtering on sentiment -> May need to adjust filtering logic for multiple filtering of various attributes
+# Visualizing Inter-Subbreddit Hyperlinking
+Initial development
+
+
+
+# Usage
+Describe
+
+
+
+
+
+# Other Applications
+
+
+
 
 ## To-Do
 __Sunburst Selectors__  
@@ -36,18 +44,5 @@ __Node Search Function (95% done)__
 __New User Tutorial__  
 + Sequence of tooltips guiding functionality
 
-## Meeting Notes
-### 27-02-2020
-- We should add more functionality which:
-    - is not a plot
-    - is self sufficient
-    - is not an individual component
-    - conveys information
- - Add custom labelling such that:
-    - Interesting clusters can be shown
-    - Encoding in the size of circle and color
- - Try to implement something like a sunburst: if circular does not fit in the page idea, try semi-spherical, so that as the filtering criteria in the sun burst increases, the data decreases and the page is not too cluttered. 
+## Changelog
 
-### 20-02-2020
-   - Try to find some labeling for the subreddits, or catagorization.
-   
