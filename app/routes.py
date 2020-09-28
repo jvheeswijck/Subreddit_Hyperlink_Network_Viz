@@ -1,6 +1,11 @@
 from flask import render_template, request, send_from_directory, jsonify, send_file
 from io import StringIO
 
+from .data import *
+from app import flask_app as app
+
+
+
 # link_limit = 100_000
 print('Defining routes')
 

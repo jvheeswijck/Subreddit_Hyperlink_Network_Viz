@@ -1,12 +1,9 @@
-from app import create_app
+from app import flask_app, routes
 
-
-print('Hello World!')
 
 if __name__ == '__main__':
-    print('Hello World!')
+    print('Starting server.')
+    flask_app.run(host='0.0.0.0', use_reloader = False)
 
-
-
-    socketio.run(app, host='0.0.0.0', use_reloader = True)
+    # socketio.run(app, host='0.0.0.0', use_reloader = True)
     
