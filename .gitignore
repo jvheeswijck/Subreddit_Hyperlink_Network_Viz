@@ -1,5 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Data Files
 data/soc-redditHyperlinks-title.tsv
 data/soc-redditHyperlinks-body.tsv
 data/web-redditEmbeddings-subreddits.csv
+
+
+# Hidden Folders
 .ipynb_checkpoints
 .idea
+.vscode
