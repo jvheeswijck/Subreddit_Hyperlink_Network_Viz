@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block body %}
 
 <!-- Background Graph -->
-<div id='svg-div'></div>
+<div id="svg-div"></div>
 <!-- <div id='svg-sunburst'></div> -->
 
 <!-- Sidebar -->
@@ -9,51 +9,53 @@
   <div class="collapse-spot-left">
     <button type="button" id="sidebarCollapse" class="btn btn-info">
       <i class="fas fa-align-left"></i>
-      <div class="arrow-right" id='left-collapse-arrow'></div>
+      <div class="arrow-right" id="left-collapse-arrow"></div>
       <!-- <span>&gt;</span> -->
     </button>
   </div>
-  <div class='row d-flex justify-content-center'>
-    <div class="content-header d-flex justify-content-center" id='data-filter-header'>
+  <div class="row d-flex justify-content-center">
+    <div class="content-header d-flex justify-content-center" id="data-filter-header">
       <!-- Filter Title -->
       <h4 class="m-0">Data Filters</h4>
     </div>
   </div>
-  <div class='row d-flex justify-content-center sidebar-row'>
-    <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Sentiment </span>
-    <div id='sentiment-slider'>
-    </div>
+  <div class="row d-flex justify-content-center sidebar-row">
+    <span class="d-flex justify-content-center" style="width: 100%; color: white">
+      Sentiment
+    </span>
+    <div id="sentiment-slider"></div>
   </div>
 
-  <div class='row d-flex justify-content-center sidebar-row hidden'>
-    <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Sentiment </span>
-    <div id='in-out-slider'>
-
-    </div>
+  <div class="row d-flex justify-content-center sidebar-row hidden">
+    <span class="d-flex justify-content-center" style="width: 100%; color: white">
+      Sentiment
+    </span>
+    <div id="in-out-slider"></div>
   </div>
-  <div class='row d-flex justify-content-center sidebar-row hidden'>
-    <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Sentiment </span>
-    <div id='other-filter'>
-
-    </div>
+  <div class="row d-flex justify-content-center sidebar-row hidden">
+    <span class="d-flex justify-content-center" style="width: 100%; color: white">
+      Sentiment
+    </span>
+    <div id="other-filter"></div>
   </div>
 
-  <div class='row d-flex justify-content-center'>
-    <div class="content-header d-flex justify-content-center" id='info-behaviour-header'>
+  <div class="row d-flex justify-content-center">
+    <div class="content-header d-flex justify-content-center" id="info-behaviour-header">
       <!-- Filter Title -->
       <h4 class="m-0">Info Display</h4>
     </div>
   </div>
-  <div class='row d-flex justify-content-center sidebar-row'>
-    <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Highlighted Links </span>
-    <div id='highlight-slider'>
-
-    </div>
+  <div class="row d-flex justify-content-center sidebar-row">
+    <span class="d-flex justify-content-center" style="width: 100%; color: white">
+      Highlighted Links
+    </span>
+    <div id="highlight-slider"></div>
   </div>
-  <div class='row d-flex justify-content-center sidebar-row'>
-    <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Node Size </span>
-    <div id='nodesize-slider'>
-    </div>
+  <div class="row d-flex justify-content-center sidebar-row">
+    <span class="d-flex justify-content-center" style="width: 100%; color: white">
+      Node Size
+    </span>
+    <div id="nodesize-slider"></div>
   </div>
   <!-- <div class='row d-flex justify-content-center sidebar-row'>
     <span class='d-flex justify-content-center' style="width: 100%; color: white;"> Node Color </span>
@@ -64,16 +66,14 @@
 
 <!-- Middle Content -->
 <div class="container" id="content">
-  <div id='svg-sunburst'></div>
+  <div id="svg-sunburst"></div>
 
   <!-- Search Bar -->
-  <div class='d-flex' id='search-box-wrapper'>
+  <div class="d-flex" id="search-box-wrapper">
     <div class="bs-example">
-      <input type="text" class="typeahead tt-query" autocomplete="on" spellcheck="false" id='search-input'>
+      <input type="text" class="typeahead tt-query" autocomplete="on" spellcheck="false" id="search-input" />
     </div>
-   
   </div>
-
 
   <!-- Date Ranger Slider -->
   <div class="date-slider-wrapper d-flex justify-content-center">
@@ -82,26 +82,23 @@
   </div>
 
   <!-- Node Tooltip -->
-  <div class='node-tooltip-wrapper'>
-    <div class="mouse-tooltip node-tooltip" id="node-tooltip" style="display: block;">
-      <div style="display: inline-block;" id='node-tooltip-title'>Title</div>
-      <div style="display: inline-block;" id='node-tooltip-numbers'></div>     
+  <div class="node-tooltip-wrapper">
+    <div class="mouse-tooltip node-tooltip" id="node-tooltip" style="display: block">
+      <div style="display: inline-block" id="node-tooltip-title">Title</div>
+      <div style="display: inline-block" id="node-tooltip-numbers"></div>
       <!-- <div style="display: inline;" id='node-tooltip-ranks'></div> -->
     </div>
   </div>
 </div>
 
-
 <!-- Rightbar -->
 <div class="shadow active" id="rightbar">
   <div class="collapse-spot-right">
     <button type="button" id="rightbarCollapse" class="btn btn-info">
-      <div class='arrow-left' id='right-collapse-arrow'></div>
+      <div class="arrow-left" id="right-collapse-arrow"></div>
     </button>
   </div>
-  <!-- <div id='svg-sunburst'></div> -->
 </div>
-
 
 <script>
   var start_date = new Date("{{ first_link }}");
@@ -131,17 +128,13 @@
 <script src="../static/js/sunburst_filter.js"></script>
 <script src="../static/js/main.js"></script>
 
-
-
-<link href="../static/css/bootstrap-tour-standalone.min.css" rel="stylesheet">
-<script src="../static/js/bootstrap-tour-standalone.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@observablehq/stdlib"></script>
+<!-- <link href="../static/dist/css/bootstrap-tour-standalone.min.css" rel="stylesheet">
+<script src="../static/dist/js/bootstrap-tour-standalone.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@observablehq/stdlib"></script> -->
 
 <!-- <script src="../static/js/jquery-3.4.1.min.js"></script> -->
 
-
-
-<script>
+<!-- <script>
 var tour = new Tour({
   delay: 2000
 });
@@ -202,7 +195,6 @@ tour.start();
 
   // Start the tour
   tour.start();
-</script>
-
+</script> -->
 
 {% endblock %}
