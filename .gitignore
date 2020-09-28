@@ -5,6 +5,7 @@ __pycache__/
 data/soc-redditHyperlinks-title.tsv
 data/soc-redditHyperlinks-body.tsv
 data/web-redditEmbeddings-subreddits.csv
+data/cachedir
 
 
 # Hidden Folders

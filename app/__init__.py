@@ -3,9 +3,8 @@ import configparser
 from flask import Flask
 # from flask_socketio import SocketIO
 
-print('Initializing app.')
 
-# Temp
+print('Initializing app.')
 DEBUG = True
 flask_app = Flask(__name__)
 flask_app.config.from_object(__name__)
