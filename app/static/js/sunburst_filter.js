@@ -23,7 +23,7 @@
 
 // // });
 
-var sb_height = 300,
+const sb_height = 300,
     sb_width = 300;
 
 var radius = (Math.min(sb_height, sb_width) / 3) - 50; //- 10
@@ -121,7 +121,7 @@ d3.json('/data?g=tag_graph').then(function (data) {
 })
 
 
-function clicked(p) {
+function clicked(event, p) {
 
     parent.datum(p.parent || root);
     parent_label.datum(p || root);
@@ -223,13 +223,13 @@ function setCatHighlights(tag, arc_element){
     })
 }
 
-function arcOver(d) {
+function arcOver(event, d) {
     arc_element = d3.select(this)
     arc_element.attr("fill-opacity", 1)
     setCatHighlights(d.data.name, arc_element)
 }
 
-function arcOut(d) {
+function arcOut(event, d) {
     $('#search-layer').empty();
     d3.select(this).attr("fill-opacity", 0.7)
 }

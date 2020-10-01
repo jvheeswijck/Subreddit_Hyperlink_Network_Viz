@@ -86,8 +86,8 @@ var transform = d3.zoomIdentity.translate(100, 50).scale(0.8);
 var zoom = d3
   .zoom()
   .scaleExtent([0.2, 10])
-  .on("zoom", function () {
-    svg.attr("transform", d3.event.transform);
+  .on("zoom", function (event) {
+    svg.attr("transform", event.transform);
     //     // nameFunction()
     //     // console.log("insidezoom")
     //     // console.log(d3.zoomIdentity.scale(this));
@@ -152,7 +152,7 @@ var node_master = null;
 var link_work = null;
 var node_work = null;
 var node_set = null;
-var nodeById = d3.map();
+var nodeById = new Map();
 
 // Load and Draw Data
 function loadAndDraw(nodeURL, linkURL) {
@@ -204,13 +204,13 @@ function loadAndDraw(nodeURL, linkURL) {
         .style("fill", default_node_color)
         .style("opacity", default_node_opacity)
         .on("mouseover", nodeOverFunction)
-        .on("mousemove", () =>
+        .on("mousemove", (event) =>
           tooltip
-            .style("top", d3.event.pageY - 10 + "px")
-            .style("left", d3.event.pageX + 10 + "px")
+            .style("top", event.pageY - 10 + "px")
+            .style("left", event.pageX + 10 + "px")
         )
         .on("mouseout", nodeOutFunction)
-        .on("click", function (d) {
+        .on("click", function (event, d) {
           // Select Behaviour
           if (clicked_node == null) {
             clicked_node = this;
@@ -405,7 +405,7 @@ function ticked() {
 }
 
 // Hover Functionalities
-function nodeOverFunction(d) {
+function nodeOverFunction(event, d) {
   tooltip.style("visibility", "visible").html(() => {
     const content = `<strong>Subreddit:</strong> <span>${d.sub}</span>`;
     return content;
@@ -437,7 +437,7 @@ function nodeOutFunction() {
   }
   highlight_layer.select("#current-node").remove();
 }
-function highlightedLinkOver(d) {
+function highlightedLinkOver(event, d) {
   d3.select(this).style("stroke", "yellow");
   link_tooltip.style("visibility", "visible").html(() => {
     const content = `<strong>Source:</strong> <span>${d.source.sub}</span><br><strong>Target:</strong> <span>${d.target.sub}</span><br><strong>Amount: ${d.n}</strong>`;
@@ -540,10 +540,10 @@ function setHighlights(d) {
     })
       .style("stroke", getLinkColor[link_sent_state])
       .on("mouseover", highlightedLinkOver)
-      .on("mousemove", () =>
+      .on("mousemove", (event) =>
         link_tooltip
-          .style("top", d3.event.pageY - 10 + "px")
-          .style("left", d3.event.pageX + 10 + "px")
+          .style("top", event.pageY - 10 + "px")
+          .style("left", event.pageX + 10 + "px")
       )
       .on("mouseout", function () {
         link_tooltip.style("visibility", "hidden");
@@ -610,9 +610,15 @@ function neigh(a, b) {
   return a == b || adjlist[a + "-" + b];
 }
 
+
+
+// One of the nodes does not have data attached to it
 function drawNames() {
   $("#text-layer").empty();
-  highlight_layer.selectAll(".node").each(function (d) {
+  highlighted_nodes = highlight_layer.selectAll(".node")
+  console.log(highlighted_nodes)
+  highlighted_nodes.each(function (d,i) {
+    console.log(i, d)
     text_layer
       .append("text")
       .datum(d)
@@ -679,13 +685,13 @@ function updateGraph(node_data, link_data) {
       .style("fill", default_node_color)
       .style("opacity", default_node_opacity)
       .on("mouseover", nodeOverFunction)
-      .on("mousemove", () =>
+      .on("mousemove", (event) =>
         tooltip
-          .style("top", d3.event.pageY - 10 + "px")
-          .style("left", d3.event.pageX + 10 + "px")
+          .style("top", event.pageY - 10 + "px")
+          .style("left", event.pageX + 10 + "px")
       )
       .on("mouseout", nodeOutFunction)
-      .on("click", function (d) {
+      .on("click", function (event, d) {
         // Select Behaviour
         if (clicked_node == null) {
           clicked_node = this;
